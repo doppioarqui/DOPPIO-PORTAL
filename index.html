@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOPPIO Portal do Cliente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --verde: #4A5E4A;
+            --terracota: #C4714F;
+            --terracota-dark: #A85A3A;
+            --bege: #F5F0E8;
+            --bege-dark: #EDE6D6;
+            --texto: #2C2416;
+            --texto-suave: #8A7D6B;
+            --branco: #FDFBF7;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bege);
+            color: var(--texto);
+            min-height: 100vh;
+        }
+        
+        /* ===== LOGIN ===== */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .login-box {
+            background: var(--branco);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(44,36,22,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-logo {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--verde);
+        }
+        
+        .login-subtitle {
+            text-align: center;
+            color: var(--texto-suave);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--texto);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid var(--bege-dark);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            background: var(--bege);
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--terracota);
+            background: var(--branco);
+        }
+        
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--texto-suave);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--terracota);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-login:hover {
+            background: var(--terracota-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            background: #FEE2E2;
+            color: #B91C1C;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        /* ===== PORTAL ===== */
+        .portal-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .portal-container.active {
+            display: flex;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--verde);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+        
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.25em;
+            color: var(--bege);
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(245,240,232,0.1);
+        }
+        
+        .sidebar-menu {
+            flex: 1;
+            padding: 2rem 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            color: rgba(245,240,232,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: rgba(245,240,232,0.05);
+            color: var(--bege);
+        }
+        
+        .menu-item.active {
+            background: rgba(245,240,232,0.08);
+            color: var(--bege);
+            border-left-color: var(--terracota);
+        }
+        
+        .menu-label {
+            font-size: 0.7rem;
+            color: rgba(245,240,232,0.3);
+            padding: 0.5rem 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .sidebar-user {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(245,240,232,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--bege);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--terracota);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: rgba(245,240,232,0.5);
+        }
+        
+        .btn-logout {
+            width: 100%;
+            padding: 0.6rem;
+            background: rgba(245,240,232,0.08);
+            border: 1px solid rgba(245,240,232,0.15);
+            border-radius: 6px;
+            color: rgba(245,240,232,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(245,240,232,0.15);
+            color: var(--bege);
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px;
+            padding: 2.5rem;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--texto);
+            margin-bottom: 0.25rem;
+        }
+        
+        .page-subtitle {
+            color: var(--texto-suave);
+            font-size: 0.9rem;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        /* CARDS */
+        .card {
+            background: var(--branco);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 24px rgba(44,36,22,0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--branco);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(44,36,22,0.08);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--texto-suave);
+            margin-bottom: 0.75rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--texto);
+        }
+        
+        /* BOTÕES */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--terracota);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--terracota-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--bege-dark);
+            color: var(--texto);
+        }
+        
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--texto-suave);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bege-dark);
+            border-top-color: var(--terracota);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background: var(--verde);
+            color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background: #B91C1C;
+        }
+        
+
+
+        /* GALERIA */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--bege-dark);
+            position: relative;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .gallery-item-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.75rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .gallery-item:hover .gallery-item-name {
+            opacity: 1;
+        }
+        
+        .gallery-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 2rem;
+        }
+        
+        .gallery-modal.show {
+            display: flex;
+        }
+        
+        .gallery-modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .gallery-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .gallery-modal-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            gap: 1rem;
+        }
+        
+        .gallery-modal-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .gallery-nav:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        
+        .gallery-nav-prev { left: 2rem; }
+        .gallery-nav-next { right: 2rem; }
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--branco);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--texto);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-block {
+            flex: 1;
+        }
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+                padding: 1.5rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-container" id="loginPage">
+    <div class="login-box">
+        <div class="login-logo">DOPPIO</div>
+        <div class="login-subtitle">Portal do Cliente</div>
+        
+        <div class="error-message" id="loginError"></div>
+        
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="loginEmail" placeholder="seu@email.com">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Senha</label>
+            <div class="password-wrapper">
+                <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" style="padding-right: 3rem;">
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <button class="btn-login" id="btnLogin" onclick="handleLogin()">Entrar</button>
+    </div>
+</div>
+
+<!-- PORTAL -->
+<div class="portal-container" id="portalPage">
+    <aside class="sidebar">
+        <div class="sidebar-logo">DOPPIO</div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-item active" onclick="showSection('dashboard')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+            </div>
+            
+            <div class="menu-item" onclick="showSection('clientes')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                </svg>
+                Clientes
+            </div>
+            
+            <!-- MENU ADMIN -->
+            <div id="adminSection" style="display: none;">
+                <div class="menu-label">ADMIN</div>
+                <div class="menu-item" onclick="showSection('upload')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 16 12 12 8 16"/>
+                        <line x1="12" y1="12" x2="12" y2="21"/>
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                    </svg>
+                    Upload
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div class="user-name" id="userName">Usuário</div>
+                    <div class="user-role" id="userRole">Cliente</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Sair</button>
+        </div>
+    </aside>
+    
+    <main class="main-content">
+        <!-- DASHBOARD -->
+        <section class="section active" id="sectionDashboard">
+            <div class="page-header">
+                <h1 class="page-title" id="dashboardTitle">Dashboard</h1>
+                <p class="page-subtitle">Bem-vindo ao portal</p>
+            </div>
+            <div id="dashboardContent">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+        
+        <!-- CLIENTES -->
+        <section class="section" id="sectionClientes">
+            <div class="page-header">
+                <h1 class="page-title">Clientes</h1>
+                <p class="page-subtitle">Gerencie seus clientes</p>
+            </div>
+            <div id="clientesContent">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+        
+        <!-- UPLOAD -->
+        <section class="section" id="sectionUpload">
+            <div class="page-header">
+                <h1 class="page-title">Upload de Arquivos</h1>
+                <p class="page-subtitle">Envie arquivos para seus clientes</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Novo Arquivo</h3>
+                <div class="form-group">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-input" id="uploadCliente">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Projeto</label>
+                    <select class="form-input" id="uploadProjeto">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-input" id="uploadCategoria">
+                        <option>Plantas</option>
+                        <option>Renders</option>
+                        <option>Documentos</option>
+                        <option>Fotos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Arquivo</label>
+                    <input type="file" class="form-input" id="fileInput" accept=".pdf,.dwg,.png,.jpg,.jpeg">
+                </div>
+                <button class="btn btn-primary" onclick="handleUpload()">Enviar</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+
+
+<!-- MODAL GALERIA -->
+<div class="gallery-modal" id="galleryModal">
+    <button class="gallery-nav gallery-nav-prev" onclick="navigateGallery(-1)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+    </button>
+    
+    <div class="gallery-modal-content">
+        <img id="galleryImage" src="" alt="">
+        <div class="gallery-modal-info">
+            <div class="gallery-modal-name" id="galleryName"></div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="downloadCurrentImage()">⬇ Baixar</button>
+                <button class="btn btn-secondary" onclick="closeGallery()">✕ Fechar</button>
+            </div>
+        </div>
+    </div>
+    
+    <button class="gallery-nav gallery-nav-next" onclick="navigateGallery(1)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+    </button>
+</div>
+
+<!-- MODAL NOVO CLIENTE -->
+<div class="modal-overlay" id="modalNovoCliente">
+    <div class="modal">
+        <h2>Novo Cliente</h2>
+        <div class="form-group">
+            <label class="form-label">Nome completo</label>
+            <input type="text" class="form-input" id="novoClienteNome">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="novoClienteEmail">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Senha provisória</label>
+            <input type="password" class="form-input" id="novoClienteSenha" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Telefone (opcional)</label>
+            <input type="text" class="form-input" id="novoClienteTelefone">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoCliente')">Cancelar</button>
+            <button class="btn btn-primary btn-block" onclick="criarCliente()">Criar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NOVO PROJETO -->
+<div class="modal-overlay" id="modalNovoProjeto">
+    <div class="modal">
+        <h2>Novo Projeto</h2>
+        <input type="hidden" id="novoProjetoClienteId">
+        <p style="color: var(--texto-suave); margin-bottom: 1rem;">Cliente: <strong id="novoProjetoClienteNome"></strong></p>
+        <div class="form-group">
+            <label class="form-label">Nome do projeto</label>
+            <input type="text" class="form-input" id="novoProjetoNome" placeholder="Ex: Apartamento Centro">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Descrição</label>
+            <input type="text" class="form-input" id="novoProjetoDesc">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Área (m²)</label>
+            <input type="number" class="form-input" id="novoProjetoArea">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoProjeto')">Cancelar</button>
+            <button class="btn btn-primary btn-block" onclick="criarProjeto()">Criar</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+// SUPABASE CONFIG
+const SUPABASE_URL = 'https://uukmlbfylptujxsjizbs.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1a21sYmZ5bHB0dWp4c2ppemJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3MjI1ODAsImV4cCI6MjA4NjI5ODU4MH0.RVTrhwkY5jgAlNyNlv-UM0KTu-1e0AW7LlOKni9AE_c';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+
+// INIT
+window.addEventListener('load', async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await initPortal(session.user);
+});
+
+// TOGGLE PASSWORD
+function togglePassword() {
+    const input = document.getElementById('loginPassword');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+}
+
+// LOGIN
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('btnLogin');
+    const errorEl = document.getElementById('loginError');
+    
+    if (!email || !password) {
+        errorEl.textContent = 'Preencha todos os campos';
+        errorEl.style.display = 'block';
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    errorEl.style.display = 'none';
+    
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+        errorEl.textContent = 'Email ou senha incorretos';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+        return;
+    }
+    
+    await initPortal(data.user);
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+});
+
+// INIT PORTAL
+async function initPortal(user) {
+    currentUser = user;
+    
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    currentProfile = profile;
+    
+    const nome = profile?.nome || user.email.split('@')[0];
+    
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('portalPage').classList.add('active');
+    document.getElementById('userName').textContent = nome;
+    document.getElementById('userAvatar').textContent = nome.charAt(0).toUpperCase();
+    document.getElementById('dashboardTitle').textContent = `Olá, ${nome.split(' ')[0]}!`;
+    
+    console.log('Profile:', profile);
+    console.log('is_admin:', profile?.is_admin);
+    
+    if (profile?.is_admin === true) {
+        console.log('✅ É ADMIN - Mostrando menu Upload');
+        document.getElementById('userRole').textContent = 'Administrador';
+        document.getElementById('adminSection').style.display = 'block';
+    } else {
+        console.log('❌ NÃO é admin');
+    }
+    
+    await loadDashboard();
+}
+
+// LOGOUT
+async function handleLogout() {
+    await sb.auth.signOut();
+    location.reload();
+}
+
+// NAVIGATION
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+    
+    document.getElementById('section' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+    event.currentTarget.classList.add('active');
+    
+    if (name === 'clientes' && currentProfile?.is_admin) loadClientes();
+    if (name === 'upload' && currentProfile?.is_admin) {
+        setTimeout(() => loadProjectsForUpload(), 100);
+    }
+}
+
+// DASHBOARD
+async function loadDashboard() {
+    const el = document.getElementById('dashboardContent');
+    
+    let query = sb.from('projects').select('*');
+    if (!currentProfile?.is_admin) {
+        query = query.eq('client_id', currentUser.id);
+    }
+    
+    const { data: projects } = await query;
+    
+    if (!projects || projects.length === 0) {
+        el.innerHTML = '<div class="card"><p style="text-align:center; color: var(--texto-suave);">Nenhum projeto encontrado</p></div>';
+        return;
+    }
+    
+    const progresso = Math.round(projects.reduce((a, p) => a + (p.progresso || 0), 0) / projects.length);
+    
+    el.innerHTML = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Projetos</div>
+                <div class="stat-value">${projects.length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Progresso</div>
+                <div class="stat-value">${progresso}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Status</div>
+                <div class="stat-value">✓</div>
+            </div>
+        </div>
+        ${projects.map(p => `
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">${p.nome}</h3>
+                <p style="color: var(--texto-suave); margin-bottom: 1rem;">${p.descricao || ''}</p>
+                <div style="font-size: 0.9rem; color: var(--texto-suave);">Progresso: ${p.progresso || 0}%</div>
+                <div style="height: 6px; background: var(--bege-dark); border-radius: 10px; margin-top: 0.5rem;">
+                    <div style="height: 100%; width: ${p.progresso || 0}%; background: var(--terracota); border-radius: 10px;"></div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
+
+// CLIENTES (ADMIN)
+async function loadClientes() {
+    const el = document.getElementById('clientesContent');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    
+    const { data: clients } = await sb.from('profiles').select('*').eq('is_admin', false);
+    
+    if (!clients || clients.length === 0) {
+        el.innerHTML = '<div class="card"><p style="text-align:center; color: var(--texto-suave);">Nenhum cliente cadastrado</p></div>';
+        return;
+    }
+    
+    el.innerHTML = `
+        <button class="btn btn-primary" onclick="openNovoCliente()" style="margin-bottom: 1.5rem;">+ Novo Cliente</button>
+        ${clients.map(c => `
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h3>${c.nome}</h3>
+                        <p style="color: var(--texto-suave); margin-top: 0.5rem;">${c.email}</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" onclick="openNovoProjeto('${c.id}', '${c.nome}')">+ Projeto</button>
+                        <button class="btn btn-secondary" onclick="verArquivosCliente('${c.id}', '${c.nome}')">Ver Arquivos</button>
+                    </div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
+
+// UPLOAD
+async function handleUpload() {
+    const file = document.getElementById('fileInput').files[0];
+    const projectId = document.getElementById('uploadProjeto').value;
+    const categoria = document.getElementById('uploadCategoria').value;
+    
+    if (!file || !projectId) {
+        showToast('Selecione arquivo e projeto', 'error');
+        return;
+    }
+    
+    const sanitize = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9.-]/g, '_');
+    const path = `${projectId}/${Date.now()}-${sanitize(file.name)}`;
+    
+    const { error } = await sb.storage.from('project-files').upload(path, file);
+    
+    if (error) {
+        showToast('Erro no upload', 'error');
+        return;
+    }
+    
+    const ext = file.name.split('.').pop().toLowerCase();
+    const tipo = ext === 'pdf' ? 'PDF' : ext === 'dwg' ? 'DWG' : 'Imagem';
+    
+    await sb.from('files').insert({
+        project_id: projectId,
+        nome: file.name,
+        tipo,
+        categoria,
+        storage_path: path,
+        tamanho_bytes: file.size
+    });
+    
+    showToast('Arquivo enviado!', 'success');
+    document.getElementById('fileInput').value = '';
+}
+
+// TOAST
+function showToast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${type} show`;
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// LOAD PROJECTS FOR UPLOAD
+async function loadProjectsForUpload() {
+    const { data: projects } = await sb.from('projects').select('id, nome');
+    const select = document.getElementById('uploadProjeto');
+    select.innerHTML = '<option value="">Selecione...</option>' + 
+        (projects || []).map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+}
+
+
+// MODAL
+function openModal(id) {
+    document.getElementById(id).classList.add('show');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+// NOVO CLIENTE
+function openNovoCliente() {
+    openModal('modalNovoCliente');
+}
+
+async function criarCliente() {
+    const nome = document.getElementById('novoClienteNome').value.trim();
+    const email = document.getElementById('novoClienteEmail').value.trim();
+    const senha = document.getElementById('novoClienteSenha').value;
+    const telefone = document.getElementById('novoClienteTelefone').value.trim();
+    
+    if (!nome || !email || !senha) {
+        showToast('Preencha todos os campos', 'error');
+        return;
+    }
+    
+    if (senha.length < 6) {
+        showToast('Senha deve ter no mínimo 6 caracteres', 'error');
+        return;
+    }
+    
+    const { data: { session: adminSession } } = await sb.auth.getSession();
+    
+    const { data, error } = await sb.auth.signUp({
+        email,
+        password: senha,
+        options: { data: { nome } }
+    });
+    
+    if (error) {
+        showToast('Erro: ' + error.message, 'error');
+        return;
+    }
+    
+    if (data.user) {
+        await sb.from('profiles').upsert({
+            id: data.user.id,
+            nome,
+            email,
+            telefone,
+            is_admin: false
+        });
+    }
+    
+    if (adminSession) {
+        await sb.auth.setSession({
+            access_token: adminSession.access_token,
+            refresh_token: adminSession.refresh_token
+        });
+    }
+    
+    showToast('Cliente criado com sucesso!', 'success');
+    closeModal('modalNovoCliente');
+    document.getElementById('novoClienteNome').value = '';
+    document.getElementById('novoClienteEmail').value = '';
+    document.getElementById('novoClienteSenha').value = '';
+    document.getElementById('novoClienteTelefone').value = '';
+    
+    await loadClientes();
+}
+
+// NOVO PROJETO
+function openNovoProjeto(clienteId, clienteNome) {
+    document.getElementById('novoProjetoClienteId').value = clienteId;
+    document.getElementById('novoProjetoClienteNome').textContent = clienteNome;
+    openModal('modalNovoProjeto');
+}
+
+async function criarProjeto() {
+    const clienteId = document.getElementById('novoProjetoClienteId').value;
+    const nome = document.getElementById('novoProjetoNome').value.trim();
+    const descricao = document.getElementById('novoProjetoDesc').value.trim();
+    const area = document.getElementById('novoProjetoArea').value;
+    
+    if (!nome) {
+        showToast('Preencha o nome do projeto', 'error');
+        return;
+    }
+    
+    const { error } = await sb.from('projects').insert({
+        client_id: clienteId,
+        nome,
+        descricao,
+        area_m2: area || null,
+        status: 'em_andamento',
+        progresso: 0
+    });
+    
+    if (error) {
+        showToast('Erro ao criar projeto', 'error');
+        return;
+    }
+    
+    showToast('Projeto criado!', 'success');
+    closeModal('modalNovoProjeto');
+    document.getElementById('novoProjetoNome').value = '';
+    document.getElementById('novoProjetoDesc').value = '';
+    document.getElementById('novoProjetoArea').value = '';
+    
+    await loadProjectsForUpload();
+}
+
+// VER ARQUIVOS DO CLIENTE
+async function verArquivosCliente(clienteId, clienteNome) {
+    const el = document.getElementById('clientesContent');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    
+    document.querySelector('.page-title').textContent = `Arquivos de ${clienteNome}`;
+    
+    const { data: projects } = await sb.from('projects').select('*').eq('client_id', clienteId);
+    
+    if (!projects || projects.length === 0) {
+        el.innerHTML = `
+            <button class="btn btn-secondary" onclick="loadClientes()" style="margin-bottom: 1rem;">← Voltar</button>
+            <div class="card"><p style="text-align:center; color: var(--texto-suave);">Nenhum projeto encontrado</p></div>
+        `;
+        return;
+    }
+    
+    const projectIds = projects.map(p => p.id);
+    const { data: files } = await sb.from('files').select('*').in('project_id', projectIds);
+    
+    let html = `<button class="btn btn-secondary" onclick="loadClientes()" style="margin-bottom: 1.5rem;">← Voltar para Clientes</button>`;
+    
+    for (const project of projects) {
+        const projectFiles = (files || []).filter(f => f.project_id === project.id);
+        
+        html += `
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">${project.nome}</h3>
+                ${projectFiles.length === 0 ? 
+                    '<p style="color: var(--texto-suave);">Nenhum arquivo ainda</p>' :
+                    (() => {
+                        const images = projectFiles.filter(f => ['Fotos', 'Renders'].includes(f.categoria));
+                        const docs = projectFiles.filter(f => !['Fotos', 'Renders'].includes(f.categoria));
+                        
+                        let html = '';
+                        
+                        if (images.length > 0) {
+                            html += `<div style="margin-top: 1rem;">
+                                <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--texto-suave);">IMAGENS (${images.length})</h4>
+                                <div class="gallery-grid">
+                                    ${images.map((f, i) => `
+                                        <div class="gallery-item" onclick="openGallery(${JSON.stringify(images)}, ${i})">
+                                            <img src="${SUPABASE_URL}/storage/v1/object/public/project-files/${f.storage_path}" alt="${f.nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23F5F0E8%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%238A7D6B%22%3E🖼️%3C/text%3E%3C/svg%3E'">
+                                            <div class="gallery-item-name">${f.nome}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>`;
+                        }
+                        
+                        if (docs.length > 0) {
+                            html += `<div style="margin-top: 1.5rem;">
+                                <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--texto-suave);">DOCUMENTOS (${docs.length})</h4>
+                                ${docs.map(f => `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-top: 1px solid var(--bege-dark);">
+                                        <div>
+                                            <div style="font-weight: 500;">${f.nome}</div>
+                                            <div style="font-size: 0.85rem; color: var(--texto-suave);">${f.categoria} • ${f.tipo}</div>
+                                        </div>
+                                        <button class="btn btn-secondary" onclick="downloadFile('${f.storage_path}', '${f.nome}')">⬇ Baixar</button>
+                                    </div>
+                                `).join('')}
+                            </div>`;
+                        }
+                        
+                        return html;
+                    })()
+                }
+            </div>
+        `;
+    }
+    
+    el.innerHTML = html;
+}
+
+
+// GALERIA
+let currentGalleryImages = [];
+
+// Event delegation para clicks na galeria
+document.addEventListener('click', function(e) {
+    const galleryItem = e.target.closest('.gallery-item');
+    if (galleryItem && galleryItem.dataset.gallery) {
+        const galleryId = galleryItem.dataset.gallery;
+        const index = parseInt(galleryItem.dataset.index);
+        const images = window[galleryId];
+        if (images) {
+            openGallery(images, index);
+        }
+    }
+});
+
+let currentGalleryIndex = 0;
+
+function openGallery(images, index) {
+    currentGalleryImages = images;
+    currentGalleryIndex = index;
+    showGalleryImage();
+    document.getElementById('galleryModal').classList.add('show');
+}
+
+function closeGallery() {
+    document.getElementById('galleryModal').classList.remove('show');
+}
+
+function showGalleryImage() {
+    const img = currentGalleryImages[currentGalleryIndex];
+    document.getElementById('galleryImage').src = `${SUPABASE_URL}/storage/v1/object/public/project-files/${img.storage_path}`;
+    document.getElementById('galleryName').textContent = img.nome;
+}
+
+function navigateGallery(direction) {
+    currentGalleryIndex += direction;
+    if (currentGalleryIndex < 0) currentGalleryIndex = currentGalleryImages.length - 1;
+    if (currentGalleryIndex >= currentGalleryImages.length) currentGalleryIndex = 0;
+    showGalleryImage();
+}
+
+async function downloadCurrentImage() {
+    const img = currentGalleryImages[currentGalleryIndex];
+    await downloadFile(img.storage_path, img.nome);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('galleryModal').classList.contains('show')) {
+        if (e.key === 'Escape') closeGallery();
+        if (e.key === 'ArrowLeft') navigateGallery(-1);
+        if (e.key === 'ArrowRight') navigateGallery(1);
+    }
+});
+
+// DOWNLOAD
+async function downloadFile(path, nome) {
+    const { data, error } = await sb.storage.from('project-files').download(path);
+    if (error) {
+        showToast('Erro ao baixar', 'error');
+        return;
+    }
+    
+    const url = URL.createObjectURL(data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nome;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Download iniciado!', 'success');
+}
+
+
+if (currentProfile?.is_admin) {
+    loadProjectsForUpload();
+}
+</script>
+</body>
+</html>
