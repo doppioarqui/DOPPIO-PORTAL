@@ -982,41 +982,79 @@ async function loadClientes() {
 }
 
 // UPLOAD
-async function handleUpload() {
-    const file = document.getElementById('fileInput').files[0];
-    const projectId = document.getElementById('uploadProjeto').value;
-    const categoria = document.getElementById('uploadCategoria').value;
-    
-    if (!file || !projectId) {
-        showToast('Selecione arquivo e projeto', 'error');
-        return;
-    }
-    
-    const sanitize = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9.-]/g, '_');
-    const path = `${projectId}/${Date.now()}-${sanitize(file.name)}`;
-    
-    const { error } = await sb.storage.from('project-files').upload(path, file);
-    
-    if (error) {
-        showToast('Erro no upload', 'error');
-        return;
-    }
-    
-    const ext = file.name.split('.').pop().toLowerCase();
-    const tipo = ext === 'pdf' ? 'PDF' : ext === 'dwg' ? 'DWG' : 'Imagem';
-    
-    await sb.from('files').insert({
-        project_id: projectId,
-        nome: file.name,
-        tipo,
-        categoria,
-        storage_path: path,
-        tamanho_bytes: file.size
-    });
-    
-    showToast('Arquivo enviado!', 'success');
-    document.getElementById('fileInput').value = '';
+// escolha do bucket baseado na categoria
+const bucketByCategoria = {
+  documentos: 'documentos',
+  fotos: 'fotos',
+  videos: 'videos',
+  modelos_3d: 'modelos_3d',
+  renders: 'renders',
+};
+
+const bucketName = bucketByCategoria[categoria];
+if (!bucketName) {
+  showToast('Categoria inválida', 'error');
+  return;
 }
+
+// pega o usuário logado (precisa para montar a pasta do UID)
+const { data: { user }, error: userErr } = await sb.auth.getUser();
+if (userErr || !user) {
+  showToast('Faça login novamente', 'error');
+  return;
+}
+
+const uid = user.id;
+
+// (opcional) data em PT-BR no formato DD-MM-YYYY
+const now = new Date();
+const dd = String(now.getDate()).padStart(2, '0');
+const mm = String(now.getMonth() + 1).padStart(2, '0');
+const yyyy = now.getFullYear();
+const dataPtBr = `${dd}-${mm}-${yyyy}`;
+
+const ext = file.name.split('.').pop().toLowerCase();
+const tipo =
+  ext === 'pdf' ? 'PDF' :
+  ext === 'dwg' ? 'DWG' :
+  ['jpg','jpeg','png','webp','gif'].includes(ext) ? 'Imagem' :
+  ['mp4','mov','avi','mkv','webm'].includes(ext) ? 'Vídeo' :
+  ['skp','blend','fbx','obj','3ds','dae'].includes(ext) ? 'Modelo 3D' :
+  'Arquivo';
+
+// caminho compatível com sua policy: UID como primeira pasta
+const path = `${uid}/${projectId}/${categoria}/${dataPtBr}/${Date.now()}-${sanitize(file.name)}`;
+
+// upload no bucket escolhido
+const { error: upErr } = await sb.storage.from(bucketName).upload(path, file, {
+  upsert: false,
+  contentType: file.type || undefined,
+});
+
+if (upErr) {
+  console.error(upErr);
+  showToast('Erro no upload', 'error');
+  return;
+}
+
+// salva metadados no banco (tabela files)
+const { error: dbErr } = await sb.from('files').insert({
+  project_id: projectId,
+  nome: file.name,
+  tipo,
+  categoria,
+  bucket: bucketName,        // <-- se sua tabela NÃO tiver coluna bucket, eu ajusto
+  storage_path: path,
+  tamanho_bytes: file.size,
+});
+
+if (dbErr) {
+  console.error(dbErr);
+  showToast('Upload ok, mas erro ao salvar no banco', 'error');
+  return;
+}
+
+showToast('Arquivo enviado!', 'success');
 
 // TOAST
 function showToast(msg, type = 'success') {
