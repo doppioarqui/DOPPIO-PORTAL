@@ -395,8 +395,6 @@
         .toast.error {
             background: #B91C1C;
         }
-        
-
 
         /* GALERIA */
         .gallery-grid {
@@ -413,6 +411,7 @@
             cursor: pointer;
             background: var(--bege-dark);
             position: relative;
+            transition: all 0.2s;
         }
         
         .gallery-item:hover {
@@ -509,6 +508,7 @@
         
         .gallery-nav-prev { left: 2rem; }
         .gallery-nav-next { right: 2rem; }
+
         /* MODAL */
         .modal-overlay {
             position: fixed;
@@ -548,6 +548,7 @@
         .btn-block {
             flex: 1;
         }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .sidebar {
@@ -601,7 +602,7 @@
         <div class="sidebar-logo">DOPPIO</div>
         
         <div class="sidebar-menu">
-            <div class="menu-item active" onclick="showSection('dashboard')">
+            <div class="menu-item active" onclick="showSection('dashboard', event)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7"/>
                     <rect x="14" y="3" width="7" height="7"/>
@@ -611,7 +612,7 @@
                 Dashboard
             </div>
             
-            <div class="menu-item" onclick="showSection('clientes')">
+            <div class="menu-item" onclick="showSection('clientes', event)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                     <circle cx="9" cy="7" r="4"/>
@@ -623,7 +624,7 @@
             <!-- MENU ADMIN -->
             <div id="adminSection" style="display: none;">
                 <div class="menu-label">ADMIN</div>
-                <div class="menu-item" onclick="showSection('upload')">
+                <div class="menu-item" onclick="showSection('upload', event)">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="16 16 12 12 8 16"/>
                         <line x1="12" y1="12" x2="12" y2="21"/>
@@ -692,23 +693,23 @@
                 <div class="form-group">
                     <label class="form-label">Categoria</label>
                     <select class="form-input" id="uploadCategoria">
-                        <option>Plantas</option>
-                        <option>Renders</option>
-                        <option>Documentos</option>
-                        <option>Fotos</option>
+                        <!-- value = chave que vai pro banco e mapeia pro bucket -->
+                        <option value="documentos">Documentos</option>
+                        <option value="fotos">Fotos</option>
+                        <option value="renders">Renders</option>
+                        <option value="videos">Vídeos</option>
+                        <option value="modelos_3d">Modelos 3D</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Arquivo</label>
-                    <input type="file" class="form-input" id="fileInput" accept=".pdf,.dwg,.png,.jpg,.jpeg">
+                    <input type="file" class="form-input" id="fileInput" accept=".pdf,.dwg,.png,.jpg,.jpeg,.mp4,.mov,.webm">
                 </div>
                 <button class="btn btn-primary" onclick="handleUpload()">Enviar</button>
             </div>
         </section>
     </main>
 </div>
-
-
 
 <!-- MODAL GALERIA -->
 <div class="gallery-modal" id="galleryModal">
@@ -790,11 +791,12 @@
 
 <div class="toast" id="toast"></div>
 
-
 <script>
+// =======================
 // SUPABASE CONFIG
+// =======================
 const SUPABASE_URL = 'https://uukmlbfylptujxsjizbs.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1a21sYmZ5bHB0dWp4c2ppemJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3MjI1ODAsImV4cCI6MjA4NjI5ODU4MH0.RVTrhwkY5jgAlNyNlv-UM0KTu-1e0AW7LlOKni9AE_c';
+const SUPABASE_KEY = 'sb_publishable_NpCg3sKF3LZi5yTGmCQ-Vw_twz-gdoX'; // <- mantenha sua anon key aqui
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -802,13 +804,65 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 
+// =======================
+// HELPERS (BUCKET/CATEGORIA)
+// =======================
+function normalizeCategoria(c) {
+  if (!c) return '';
+  const s = String(c).trim().toLowerCase();
+  // aceita legado tipo "Fotos", "Renders", "Documentos", "Plantas"
+  if (s === 'fotos' || s === 'foto') return 'fotos';
+  if (s === 'renders' || s === 'render') return 'renders';
+  if (s === 'documentos' || s === 'documento' || s === 'plantas') return 'documentos';
+  if (s === 'videos' || s === 'vídeos' || s === 'video' || s === 'vídeo') return 'videos';
+  if (s === 'modelos_3d' || s === 'modelos 3d' || s === '3d' || s === 'modelos3d') return 'modelos_3d';
+  return s;
+}
+
+function bucketFromCategoria(categoria) {
+  const c = normalizeCategoria(categoria);
+  const map = {
+    documentos: 'documentos',
+    fotos: 'fotos',
+    renders: 'renders',
+    videos: 'videos',
+    modelos_3d: 'modelos_3d',
+  };
+  return map[c] || null;
+}
+
+function categoriaLabel(categoria) {
+  const c = normalizeCategoria(categoria);
+  const map = {
+    documentos: 'Documentos',
+    fotos: 'Fotos',
+    renders: 'Renders',
+    videos: 'Vídeos',
+    modelos_3d: 'Modelos 3D',
+  };
+  return map[c] || (categoria || '');
+}
+
+function isImageCategoria(categoria) {
+  const c = normalizeCategoria(categoria);
+  return c === 'fotos' || c === 'renders';
+}
+
+function getPublicUrl(bucket, path) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+}
+
+// =======================
 // INIT
+// =======================
 window.addEventListener('load', async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (session) await initPortal(session.user);
 });
 
+// =======================
 // TOGGLE PASSWORD
+// =======================
 function togglePassword() {
     const input = document.getElementById('loginPassword');
     const icon = document.getElementById('eyeIcon');
@@ -821,7 +875,13 @@ function togglePassword() {
     }
 }
 
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+});
+
+// =======================
 // LOGIN
+// =======================
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -851,11 +911,9 @@ async function handleLogin() {
     await initPortal(data.user);
 }
 
-document.getElementById('loginPassword').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleLogin();
-});
-
+// =======================
 // INIT PORTAL
+// =======================
 async function initPortal(user) {
     currentUser = user;
     
@@ -870,33 +928,33 @@ async function initPortal(user) {
     document.getElementById('userAvatar').textContent = nome.charAt(0).toUpperCase();
     document.getElementById('dashboardTitle').textContent = `Olá, ${nome.split(' ')[0]}!`;
     
-    console.log('Profile:', profile);
-    console.log('is_admin:', profile?.is_admin);
-    
     if (profile?.is_admin === true) {
-        console.log('✅ É ADMIN - Mostrando menu Upload');
         document.getElementById('userRole').textContent = 'Administrador';
         document.getElementById('adminSection').style.display = 'block';
-    } else {
-        console.log('❌ NÃO é admin');
     }
     
     await loadDashboard();
 }
 
+// =======================
 // LOGOUT
+// =======================
 async function handleLogout() {
     await sb.auth.signOut();
     location.reload();
 }
 
+// =======================
 // NAVIGATION
-function showSection(name) {
+// =======================
+function showSection(name, evt) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
     
     document.getElementById('section' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
-    event.currentTarget.classList.add('active');
+
+    const e = evt || window.event;
+    if (e && e.currentTarget) e.currentTarget.classList.add('active');
     
     if (name === 'clientes' && currentProfile?.is_admin) loadClientes();
     if (name === 'upload' && currentProfile?.is_admin) {
@@ -904,7 +962,9 @@ function showSection(name) {
     }
 }
 
+// =======================
 // DASHBOARD
+// =======================
 async function loadDashboard() {
     const el = document.getElementById('dashboardContent');
     
@@ -950,7 +1010,9 @@ async function loadDashboard() {
     `;
 }
 
+// =======================
 // CLIENTES (ADMIN)
+// =======================
 async function loadClientes() {
     const el = document.getElementById('clientesContent');
     el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
@@ -981,82 +1043,83 @@ async function loadClientes() {
     `;
 }
 
-// UPLOAD
-// escolha do bucket baseado na categoria
-const bucketByCategoria = {
-  documentos: 'documentos',
-  fotos: 'fotos',
-  videos: 'videos',
-  modelos_3d: 'modelos_3d',
-  renders: 'renders',
-};
+// =======================
+// UPLOAD (multi-bucket / sem coluna bucket)
+// =======================
+async function handleUpload() {
+  const file = document.getElementById('fileInput').files[0];
+  const projectId = document.getElementById('uploadProjeto').value;
+  const categoria = document.getElementById('uploadCategoria').value; // ex: "fotos"
 
-const bucketName = bucketByCategoria[categoria];
-if (!bucketName) {
-  showToast('Categoria inválida', 'error');
-  return;
+  if (!file || !projectId) {
+    showToast('Selecione arquivo e projeto', 'error');
+    return;
+  }
+
+  const bucketName = bucketFromCategoria(categoria);
+  if (!bucketName) {
+    showToast('Categoria inválida', 'error');
+    return;
+  }
+
+  const { data: { user }, error: userErr } = await sb.auth.getUser();
+  if (userErr || !user) {
+    showToast('Faça login novamente', 'error');
+    return;
+  }
+
+  const uid = user.id;
+
+  const sanitize = (str) =>
+    str.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9.-]/g, '_');
+
+  // pasta por data PT-BR (DD-MM-YYYY)
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  const dataPtBr = `${dd}-${mm}-${yyyy}`;
+
+  // path: uid/categoria/data/projeto/arquivo
+  const path = `${uid}/${categoria}/${dataPtBr}/${projectId}/${Date.now()}-${sanitize(file.name)}`;
+
+  const { error: upErr } = await sb.storage.from(bucketName).upload(path, file);
+  if (upErr) {
+    showToast(`Erro no upload: ${upErr.message}`, 'error');
+    return;
+  }
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  const tipo =
+    ext === 'pdf' ? 'PDF' :
+    ext === 'dwg' ? 'DWG' :
+    ['mp4','mov','webm'].includes(ext) ? 'Vídeo' :
+    'Imagem';
+
+  // grava no banco (sem coluna bucket)
+  const { error: dbErr } = await sb.from('files').insert({
+    project_id: projectId,
+    nome: file.name,
+    tipo,
+    categoria,           // <- aqui fica "fotos", "renders", etc (chave do bucket)
+    storage_path: path,
+    tamanho_bytes: file.size,
+  });
+
+  if (dbErr) {
+    showToast(`Upload ok, mas erro ao salvar no banco: ${dbErr.message}`, 'error');
+    return;
+  }
+
+  showToast('Arquivo enviado!', 'success');
+  document.getElementById('fileInput').value = '';
 }
 
-// pega o usuário logado (precisa para montar a pasta do UID)
-const { data: { user }, error: userErr } = await sb.auth.getUser();
-if (userErr || !user) {
-  showToast('Faça login novamente', 'error');
-  return;
-}
-
-const uid = user.id;
-
-// (opcional) data em PT-BR no formato DD-MM-YYYY
-const now = new Date();
-const dd = String(now.getDate()).padStart(2, '0');
-const mm = String(now.getMonth() + 1).padStart(2, '0');
-const yyyy = now.getFullYear();
-const dataPtBr = `${dd}-${mm}-${yyyy}`;
-
-const ext = file.name.split('.').pop().toLowerCase();
-const tipo =
-  ext === 'pdf' ? 'PDF' :
-  ext === 'dwg' ? 'DWG' :
-  ['jpg','jpeg','png','webp','gif'].includes(ext) ? 'Imagem' :
-  ['mp4','mov','avi','mkv','webm'].includes(ext) ? 'Vídeo' :
-  ['skp','blend','fbx','obj','3ds','dae'].includes(ext) ? 'Modelo 3D' :
-  'Arquivo';
-
-// caminho compatível com sua policy: UID como primeira pasta
-const path = `${uid}/${projectId}/${categoria}/${dataPtBr}/${Date.now()}-${sanitize(file.name)}`;
-
-// upload no bucket escolhido
-const { error: upErr } = await sb.storage.from(bucketName).upload(path, file, {
-  upsert: false,
-  contentType: file.type || undefined,
-});
-
-if (upErr) {
-  console.error(upErr);
-  showToast('Erro no upload', 'error');
-  return;
-}
-
-// salva metadados no banco (tabela files)
-const { error: dbErr } = await sb.from('files').insert({
-  project_id: projectId,
-  nome: file.name,
-  tipo,
-  categoria,
-  bucket: bucketName,        // <-- se sua tabela NÃO tiver coluna bucket, eu ajusto
-  storage_path: path,
-  tamanho_bytes: file.size,
-});
-
-if (dbErr) {
-  console.error(dbErr);
-  showToast('Upload ok, mas erro ao salvar no banco', 'error');
-  return;
-}
-
-showToast('Arquivo enviado!', 'success');
-
+// =======================
 // TOAST
+// =======================
 function showToast(msg, type = 'success') {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -1064,7 +1127,9 @@ function showToast(msg, type = 'success') {
     setTimeout(() => el.classList.remove('show'), 3000);
 }
 
+// =======================
 // LOAD PROJECTS FOR UPLOAD
+// =======================
 async function loadProjectsForUpload() {
     const { data: projects } = await sb.from('projects').select('id, nome');
     const select = document.getElementById('uploadProjeto');
@@ -1072,8 +1137,9 @@ async function loadProjectsForUpload() {
         (projects || []).map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
 }
 
-
+// =======================
 // MODAL
+// =======================
 function openModal(id) {
     document.getElementById(id).classList.add('show');
 }
@@ -1082,7 +1148,9 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
+// =======================
 // NOVO CLIENTE
+// =======================
 function openNovoCliente() {
     openModal('modalNovoCliente');
 }
@@ -1143,7 +1211,9 @@ async function criarCliente() {
     await loadClientes();
 }
 
+// =======================
 // NOVO PROJETO
+// =======================
 function openNovoProjeto(clienteId, clienteNome) {
     document.getElementById('novoProjetoClienteId').value = clienteId;
     document.getElementById('novoProjetoClienteNome').textContent = clienteNome;
@@ -1184,12 +1254,15 @@ async function criarProjeto() {
     await loadProjectsForUpload();
 }
 
-// VER ARQUIVOS DO CLIENTE
+// =======================
+// VER ARQUIVOS DO CLIENTE (ADMIN)
+// =======================
 async function verArquivosCliente(clienteId, clienteNome) {
     const el = document.getElementById('clientesContent');
     el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-    
-    document.querySelector('.page-title').textContent = `Arquivos de ${clienteNome}`;
+
+    const headerTitle = document.querySelector('#sectionClientes .page-title');
+    if (headerTitle) headerTitle.textContent = `Arquivos de ${clienteNome}`;
     
     const { data: projects } = await sb.from('projects').select('*').eq('client_id', clienteId);
     
@@ -1215,41 +1288,49 @@ async function verArquivosCliente(clienteId, clienteNome) {
                 ${projectFiles.length === 0 ? 
                     '<p style="color: var(--texto-suave);">Nenhum arquivo ainda</p>' :
                     (() => {
-                        const images = projectFiles.filter(f => ['Fotos', 'Renders'].includes(f.categoria));
-                        const docs = projectFiles.filter(f => !['Fotos', 'Renders'].includes(f.categoria));
+                        const images = projectFiles.filter(f => isImageCategoria(f.categoria));
+                        const docs = projectFiles.filter(f => !isImageCategoria(f.categoria));
                         
-                        let html = '';
+                        let inner = '';
                         
                         if (images.length > 0) {
-                            html += `<div style="margin-top: 1rem;">
+                            // guarda a lista no window e usa data-attributes (sem JSON.stringify em onclick)
+                            const gid = 'gallery_' + project.id.replaceAll('-', '_');
+                            window[gid] = images;
+
+                            inner += `<div style="margin-top: 1rem;">
                                 <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--texto-suave);">IMAGENS (${images.length})</h4>
                                 <div class="gallery-grid">
-                                    ${images.map((f, i) => `
-                                        <div class="gallery-item" onclick="openGallery(${JSON.stringify(images)}, ${i})">
-                                            <img src="${SUPABASE_URL}/storage/v1/object/public/project-files/${f.storage_path}" alt="${f.nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23F5F0E8%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%238A7D6B%22%3E🖼️%3C/text%3E%3C/svg%3E'">
-                                            <div class="gallery-item-name">${f.nome}</div>
-                                        </div>
-                                    `).join('')}
+                                    ${images.map((f, i) => {
+                                        const b = bucketFromCategoria(f.categoria) || 'project-files';
+                                        const src = getPublicUrl(b, f.storage_path);
+                                        return `
+                                            <div class="gallery-item" data-gallery="${gid}" data-index="${i}">
+                                                <img src="${src}" alt="${f.nome}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23F5F0E8%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%238A7D6B%22%3E🖼️%3C/text%3E%3C/svg%3E'">
+                                                <div class="gallery-item-name">${f.nome}</div>
+                                            </div>
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>`;
                         }
                         
                         if (docs.length > 0) {
-                            html += `<div style="margin-top: 1.5rem;">
-                                <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--texto-suave);">DOCUMENTOS (${docs.length})</h4>
+                            inner += `<div style="margin-top: 1.5rem;">
+                                <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--texto-suave);">ARQUIVOS (${docs.length})</h4>
                                 ${docs.map(f => `
                                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-top: 1px solid var(--bege-dark);">
                                         <div>
                                             <div style="font-weight: 500;">${f.nome}</div>
-                                            <div style="font-size: 0.85rem; color: var(--texto-suave);">${f.categoria} • ${f.tipo}</div>
+                                            <div style="font-size: 0.85rem; color: var(--texto-suave);">${categoriaLabel(f.categoria)} • ${f.tipo || ''}</div>
                                         </div>
-                                        <button class="btn btn-secondary" onclick="downloadFile('${f.storage_path}', '${f.nome}')">⬇ Baixar</button>
+                                        <button class="btn btn-secondary" onclick="downloadFile('${f.storage_path}', '${f.nome}', '${normalizeCategoria(f.categoria)}')">⬇ Baixar</button>
                                     </div>
                                 `).join('')}
                             </div>`;
                         }
                         
-                        return html;
+                        return inner;
                     })()
                 }
             </div>
@@ -1259,24 +1340,21 @@ async function verArquivosCliente(clienteId, clienteNome) {
     el.innerHTML = html;
 }
 
-
-// GALERIA
+// =======================
+// GALERIA (clique via data-attributes)
+// =======================
 let currentGalleryImages = [];
+let currentGalleryIndex = 0;
 
-// Event delegation para clicks na galeria
 document.addEventListener('click', function(e) {
     const galleryItem = e.target.closest('.gallery-item');
     if (galleryItem && galleryItem.dataset.gallery) {
         const galleryId = galleryItem.dataset.gallery;
         const index = parseInt(galleryItem.dataset.index);
         const images = window[galleryId];
-        if (images) {
-            openGallery(images, index);
-        }
+        if (images) openGallery(images, index);
     }
 });
-
-let currentGalleryIndex = 0;
 
 function openGallery(images, index) {
     currentGalleryImages = images;
@@ -1291,7 +1369,8 @@ function closeGallery() {
 
 function showGalleryImage() {
     const img = currentGalleryImages[currentGalleryIndex];
-    document.getElementById('galleryImage').src = `${SUPABASE_URL}/storage/v1/object/public/project-files/${img.storage_path}`;
+    const b = bucketFromCategoria(img.categoria) || 'project-files';
+    document.getElementById('galleryImage').src = getPublicUrl(b, img.storage_path);
     document.getElementById('galleryName').textContent = img.nome;
 }
 
@@ -1304,7 +1383,7 @@ function navigateGallery(direction) {
 
 async function downloadCurrentImage() {
     const img = currentGalleryImages[currentGalleryIndex];
-    await downloadFile(img.storage_path, img.nome);
+    await downloadFile(img.storage_path, img.nome, normalizeCategoria(img.categoria));
 }
 
 document.addEventListener('keydown', (e) => {
@@ -1315,11 +1394,14 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// DOWNLOAD
-async function downloadFile(path, nome) {
-    const { data, error } = await sb.storage.from('project-files').download(path);
+// =======================
+// DOWNLOAD (bucket por categoria)
+// =======================
+async function downloadFile(path, nome, categoria) {
+    const bucket = bucketFromCategoria(categoria) || 'project-files';
+    const { data, error } = await sb.storage.from(bucket).download(path);
     if (error) {
-        showToast('Erro ao baixar', 'error');
+        showToast('Erro ao baixar: ' + error.message, 'error');
         return;
     }
     
@@ -1330,11 +1412,6 @@ async function downloadFile(path, nome) {
     a.click();
     URL.revokeObjectURL(url);
     showToast('Download iniciado!', 'success');
-}
-
-
-if (currentProfile?.is_admin) {
-    loadProjectsForUpload();
 }
 </script>
 </body>
