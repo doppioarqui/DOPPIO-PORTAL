@@ -9,7 +9,7 @@
 
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         :root {
             --verde: #4A5E4A;
             --terracota: #C4714F;
@@ -20,14 +20,14 @@
             --texto-suave: #8A7D6B;
             --branco: #FDFBF7;
         }
-        
+
         body {
             font-family: 'Montserrat', sans-serif;
             background: var(--bege);
             color: var(--texto);
             min-height: 100vh;
         }
-        
+
         /* ===== LOGIN ===== */
         .login-container {
             min-height: 100vh;
@@ -36,7 +36,7 @@
             justify-content: center;
             padding: 2rem;
         }
-        
+
         .login-box {
             background: var(--branco);
             padding: 3rem;
@@ -45,7 +45,7 @@
             width: 100%;
             max-width: 400px;
         }
-        
+
         .login-logo {
             font-size: 2rem;
             font-weight: 300;
@@ -54,18 +54,18 @@
             margin-bottom: 0.5rem;
             color: var(--verde);
         }
-        
+
         .login-subtitle {
             text-align: center;
             color: var(--texto-suave);
             font-size: 0.9rem;
             margin-bottom: 2rem;
         }
-        
+
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-label {
             display: block;
             font-size: 0.85rem;
@@ -73,7 +73,7 @@
             margin-bottom: 0.5rem;
             color: var(--texto);
         }
-        
+
         .form-input {
             width: 100%;
             padding: 0.9rem;
@@ -84,17 +84,17 @@
             background: var(--bege);
             transition: all 0.2s;
         }
-        
+
         .form-input:focus {
             outline: none;
             border-color: var(--terracota);
             background: var(--branco);
         }
-        
+
         .password-wrapper {
             position: relative;
         }
-        
+
         .password-toggle {
             position: absolute;
             right: 1rem;
@@ -105,7 +105,7 @@
             cursor: pointer;
             color: var(--texto-suave);
         }
-        
+
         .btn-login {
             width: 100%;
             padding: 1rem;
@@ -119,18 +119,18 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
+
         .btn-login:hover {
             background: var(--terracota-dark);
             transform: translateY(-2px);
         }
-        
+
         .btn-login:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .error-message {
             background: #FEE2E2;
             color: #B91C1C;
@@ -218,11 +218,11 @@
             display: none;
             min-height: 100vh;
         }
-        
+
         .portal-container.active {
             display: flex;
         }
-        
+
         /* SIDEBAR */
         .sidebar {
             width: 260px;
@@ -235,7 +235,7 @@
             top: 0;
             bottom: 0;
         }
-        
+
         .sidebar-logo {
             font-size: 1.5rem;
             font-weight: 300;
@@ -244,12 +244,12 @@
             padding: 0 1.5rem 2rem;
             border-bottom: 1px solid rgba(245,240,232,0.1);
         }
-        
+
         .sidebar-menu {
             flex: 1;
             padding: 2rem 0;
         }
-        
+
         .menu-item {
             display: flex;
             align-items: center;
@@ -260,18 +260,18 @@
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        
+
         .menu-item:hover {
             background: rgba(245,240,232,0.05);
             color: var(--bege);
         }
-        
+
         .menu-item.active {
             background: rgba(245,240,232,0.08);
             color: var(--bege);
             border-left-color: var(--terracota);
         }
-        
+
         .menu-label {
             font-size: 0.7rem;
             color: rgba(245,240,232,0.3);
@@ -279,12 +279,12 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
-        
+
         .sidebar-user {
             padding: 1.5rem;
             border-top: 1px solid rgba(245,240,232,0.1);
         }
-        
+
         .user-info {
             display: flex;
             align-items: center;
@@ -292,7 +292,7 @@
             margin-bottom: 1rem;
             color: var(--bege);
         }
-        
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -303,17 +303,17 @@
             justify-content: center;
             font-weight: 600;
         }
-        
+
         .user-name {
             font-size: 0.9rem;
             font-weight: 500;
         }
-        
+
         .user-role {
             font-size: 0.75rem;
             color: rgba(245,240,232,0.5);
         }
-        
+
         .btn-logout {
             width: 100%;
             padding: 0.6rem;
@@ -324,43 +324,43 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .btn-logout:hover {
             background: rgba(245,240,232,0.15);
             color: var(--bege);
         }
-        
+
         /* MAIN CONTENT */
         .main-content {
             margin-left: 260px;
             padding: 2.5rem;
             min-height: 100vh;
         }
-        
+
         .page-header {
             margin-bottom: 2rem;
         }
-        
+
         .page-title {
             font-size: 2rem;
             font-weight: 500;
             color: var(--texto);
             margin-bottom: 0.25rem;
         }
-        
+
         .page-subtitle {
             color: var(--texto-suave);
             font-size: 0.9rem;
         }
-        
+
         .section {
             display: none;
         }
-        
+
         .section.active {
             display: block;
         }
-        
+
         /* CARDS */
         .card {
             background: var(--branco);
@@ -369,21 +369,21 @@
             box-shadow: 0 4px 24px rgba(44,36,22,0.08);
             margin-bottom: 1.5rem;
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .stat-card {
             background: var(--branco);
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 4px 24px rgba(44,36,22,0.08);
         }
-        
+
         .stat-label {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -391,13 +391,13 @@
             color: var(--texto-suave);
             margin-bottom: 0.75rem;
         }
-        
+
         .stat-value {
             font-size: 2rem;
             font-weight: 600;
             color: var(--texto);
         }
-        
+
         /* BOTÕES */
         .btn {
             padding: 0.75rem 1.5rem;
@@ -408,28 +408,28 @@
             transition: all 0.2s;
             border: none;
         }
-        
+
         .btn-primary {
             background: var(--terracota);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: var(--terracota-dark);
         }
-        
+
         .btn-secondary {
             background: var(--bege-dark);
             color: var(--texto);
         }
-        
+
         /* LOADING */
         .loading {
             text-align: center;
             padding: 3rem;
             color: var(--texto-suave);
         }
-        
+
         .spinner {
             width: 40px;
             height: 40px;
@@ -439,11 +439,11 @@
             animation: spin 0.8s linear infinite;
             margin: 0 auto;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         /* TOAST */
         .toast {
             position: fixed;
@@ -459,16 +459,16 @@
             transition: all 0.3s;
             z-index: 1000;
         }
-        
+
         .toast.show {
             transform: translateY(0);
             opacity: 1;
         }
-        
+
         .toast.error {
             background: #B91C1C;
         }
-        
+
 
 
         /* GALERIA */
@@ -478,7 +478,7 @@
             gap: 1rem;
             margin-top: 1rem;
         }
-        
+
         .gallery-item {
             aspect-ratio: 1;
             border-radius: 8px;
@@ -487,18 +487,18 @@
             background: var(--bege-dark);
             position: relative;
         }
-        
+
         .gallery-item:hover {
             transform: scale(1.05);
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
-        
+
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
+
         .gallery-item-name {
             position: absolute;
             bottom: 0;
@@ -511,11 +511,11 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
-        
+
         .gallery-item:hover .gallery-item-name {
             opacity: 1;
         }
-        
+
         .gallery-modal {
             position: fixed;
             inset: 0;
@@ -526,11 +526,11 @@
             z-index: 2000;
             padding: 2rem;
         }
-        
+
         .gallery-modal.show {
             display: flex;
         }
-        
+
         .gallery-modal-content {
             max-width: 90vw;
             max-height: 90vh;
@@ -538,14 +538,14 @@
             flex-direction: column;
             gap: 1rem;
         }
-        
+
         .gallery-modal img {
             max-width: 100%;
             max-height: 80vh;
             object-fit: contain;
             border-radius: 8px;
         }
-        
+
         .gallery-modal-info {
             display: flex;
             justify-content: space-between;
@@ -553,12 +553,12 @@
             color: white;
             gap: 1rem;
         }
-        
+
         .gallery-modal-name {
             font-size: 1rem;
             font-weight: 500;
         }
-        
+
         .gallery-nav {
             position: absolute;
             top: 50%;
@@ -575,11 +575,11 @@
             justify-content: center;
             transition: all 0.2s;
         }
-        
+
         .gallery-nav:hover {
             background: rgba(255,255,255,0.25);
         }
-        
+
         .gallery-nav-prev { left: 2rem; }
         .gallery-nav-next { right: 2rem; }
         /* MODAL */
@@ -592,11 +592,11 @@
             justify-content: center;
             z-index: 1000;
         }
-        
+
         .modal-overlay.show {
             display: flex;
         }
-        
+
         .modal {
             background: var(--branco);
             border-radius: 16px;
@@ -625,19 +625,19 @@
             max-width: 920px;
         }
 
-        
+
         .modal h2 {
             font-size: 1.5rem;
             margin-bottom: 1.5rem;
             color: var(--texto);
         }
-        
+
         .modal-actions {
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        
+
         .btn-block {
             flex: 1;
         }
@@ -653,15 +653,11 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-        }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
+            .form-grid { grid-template-columns: 1fr; }
             .grid-span-2 { grid-column: auto; }
         }
-    
-    
+
+
     /* GALLERY FULLSCREEN */
     #galleryModal .modal{
         max-width: 1100px;
@@ -677,7 +673,7 @@
         display: block;
         margin: 0 auto;
     }
-    
+
         /* Dados (modal) */
         .data-section { padding: 12px 12px 6px; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; background: rgba(255,255,255,0.85); margin-bottom: 12px; }
         .data-title { font-weight: 700; margin-bottom: 10px; color: var(--texto); }
@@ -860,8 +856,6 @@
 </div>
 </div>
 
-<!-- MODAL NOVO PROJETO -->
-
 <div class="toast" id="toast"></div>
 
 <div class="modal-overlay" id="modalConfigHub">
@@ -891,6 +885,7 @@
 </div>
 </div>
 </div>
+
 <!-- MODAL DADOS -->
 <div class="modal-overlay" id="modalDados">
   <div class="modal modal-scroll">
@@ -907,38 +902,40 @@
 /* =========================================================
    DOPPIO PORTAL (Sem banco / Sem Supabase)
    - Admin cadastra clientes + links do Drive
-   - Cliente acessa com email + senha e vê 4 botões
+   - Cliente acessa com email + senha e vê botões
    Persistência: localStorage
    ========================================================= */
 
 const STORAGE_KEY = "doppio_portal_state_v1";
 const SESSION_KEY = "doppio_portal_session_v1";
 
-// Admin padrão (troque aqui se quiser)
+/**
+ * ADMIN PADRÃO (ATUALIZADO)
+ * Email: doppio.arqui@gmail.com
+ * Senha: Cas@2516.
+ *
+ * Observação: isso é só para o modo "sem banco" (localStorage).
+ * Quando migrar pro Supabase, o login deixa de ficar “hardcoded” no HTML.
+ */
 const DEFAULT_ADMIN = {
-  email: "nertanjr@gmail.com",
-  // senha padrão: "doppio"
-  passwordHash: "e85dc26c78f3f8275e29a3e2016a7ade1bbb72ab71efd573aed8986baa81c942",
+  email: "doppio.arqui@gmail.com",
+  // senha (hash SHA-256): Cas@2516.
+  passwordHash: "ab6cc6757cc038230882a0161e6d3d9bb60ed1d29767b49ae3796d22fb855eb3",
   name: "Admin"
 };
 
 const el = (id) => document.getElementById(id);
 
-function nowISO() {
-  return new Date().toISOString();
-}
+function nowISO() { return new Date().toISOString(); }
 
 function formatDateBR(isoDateOrISO) {
   if (!isoDateOrISO) return "";
-  // aceita "YYYY-MM-DD" ou ISO completo
   const d = isoDateOrISO.length === 10 ? new Date(isoDateOrISO + "T00:00:00") : new Date(isoDateOrISO);
   if (Number.isNaN(d.getTime())) return "";
   return new Intl.DateTimeFormat("pt-BR").format(d);
 }
 
-function uid() {
-  return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
-}
+function uid() { return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16); }
 
 async function sha256(text) {
   try {
@@ -953,22 +950,17 @@ async function sha256(text) {
 }
 
 function sha256_fallback(ascii) {
-  // Minimal SHA-256 (fallback for file:// where crypto.subtle may be unavailable)
   function rightRotate(value, amount) { return (value>>>amount) | (value<<(32-amount)); }
-
   var mathPow = Math.pow;
   var maxWord = mathPow(2, 32);
   var lengthProperty = 'length'
-  var i, j; // Used as a counter across the whole file
+  var i, j;
   var result = '';
-
   var words = [];
   var asciiBitLength = ascii[lengthProperty]*8;
-
   var hash = sha256_fallback.h = sha256_fallback.h || [];
   var k = sha256_fallback.k = sha256_fallback.k || [];
   var primeCounter = k[lengthProperty];
-
   var isComposite = {};
   for (var candidate = 2; primeCounter < 64; candidate++) {
     if (!isComposite[candidate]) {
@@ -977,23 +969,19 @@ function sha256_fallback(ascii) {
       k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
     }
   }
-
-  ascii += '\x80'; // Append Ƈ' bit (plus zero padding)
-  while (ascii[lengthProperty]%64 - 56) ascii += '\x00'; // More zero padding
+  ascii += '\x80';
+  while (ascii[lengthProperty]%64 - 56) ascii += '\x00';
   for (i = 0; i < ascii[lengthProperty]; i++) {
     j = ascii.charCodeAt(i);
     words[i>>2] |= j << ((3 - i)%4)*8;
   }
   words[words[lengthProperty]] = ((asciiBitLength/maxWord)|0);
   words[words[lengthProperty]] = (asciiBitLength)
-
   for (j = 0; j < words[lengthProperty];) {
     var w = words.slice(j, j += 16);
     var oldHash = hash.slice(0);
-
     for (i = 0; i < 64; i++) {
       var w15 = w[i - 15], w2 = w[i - 2];
-
       var a = hash[0], e = hash[4];
       var temp1 = hash[7]
         + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
@@ -1006,20 +994,14 @@ function sha256_fallback(ascii) {
             + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10))
           )|0
         );
-
       var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
         + ((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
-
       hash = [(temp1 + temp2)|0].concat(hash);
       hash[4] = (hash[4] + temp1)|0;
       hash.pop();
     }
-
-    for (i = 0; i < 8; i++) {
-      hash[i] = (hash[i] + oldHash[i])|0;
-    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i])|0;
   }
-
   for (i = 0; i < 8; i++) {
     for (j = 3; j + 1; j--) {
       var b = (hash[i] >> (j*8)) & 255;
@@ -1040,14 +1022,8 @@ function loadState() {
 }
 
 function saveState(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
-    // Normalmente ocorre quando as imagens (base64) ficam grandes demais para o limite do localStorage
-    console.error(e);
-    showToast("Não foi possível salvar. As imagens podem estar muito pesadas. Tente usar capas menores (ex: 1600px) ou menos imagens.");
-    throw e;
-  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { console.error(e); showToast("Não foi possível salvar. As imagens podem estar muito pesadas."); throw e; }
 }
 
 function loadSession() {
@@ -1055,14 +1031,8 @@ function loadSession() {
   if (!raw) return null;
   try { return JSON.parse(raw); } catch(e) { return null; }
 }
-
-function saveSession(session) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-function clearSession() {
-  sessionStorage.removeItem(SESSION_KEY);
-}
+function saveSession(session) { sessionStorage.setItem(SESSION_KEY, JSON.stringify(session)); }
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
 
 function showToast(msg) {
   const t = el("toast");
@@ -1073,9 +1043,7 @@ function showToast(msg) {
 }
 
 // ===== CÓDIGO DO CLIENTE: obrigatório + único (validação em tempo real) =====
-function normalizeCode(v) {
-  return (v || "").trim().toLowerCase();
-}
+function normalizeCode(v) { return (v || "").trim().toLowerCase(); }
 
 function isCodeTaken(code) {
   const key = normalizeCode(code);
@@ -1093,7 +1061,6 @@ function updateCodigoStatus() {
   const v = input.value || "";
   const key = normalizeCode(v);
 
-  // obrigatório
   if (!key) {
     status.textContent = "⚠️ Código é obrigatório";
     status.className = "code-status warn";
@@ -1101,7 +1068,6 @@ function updateCodigoStatus() {
     return;
   }
 
-  // único
   if (isCodeTaken(v)) {
     status.textContent = "⚠️ Já existe um acesso com esse código";
     status.className = "code-status warn";
@@ -1120,7 +1086,6 @@ function showLogin() {
   el("portalPage").style.display = "none";
   el("loginError").style.display = "none";
 }
-
 function showPortal() {
   el("loginPage").style.display = "none";
   el("portalPage").style.display = "flex";
@@ -1147,7 +1112,6 @@ function showSection(name) {
   const session = loadSession();
   if (!session) return;
 
-  // Cliente só vê Dashboard
   if (session.role !== "admin" && name !== "dashboard") name = "dashboard";
 
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
@@ -1185,14 +1149,12 @@ async function handleLogin() {
   const state = loadState();
   const passHash = await sha256(pass);
 
-  // Admin?
   if (email === (state.admin.email || "").toLowerCase() && passHash === state.admin.passwordHash) {
     saveSession({ role: "admin", id: "admin" });
     initApp();
     return;
   }
 
-  // Cliente?
   const client = (state.clients||[]).find(c => (c.email || "").toLowerCase() === email);
   if (client && client.passwordHash === passHash) {
     saveSession({ role: "client", id: client.id });
@@ -1200,7 +1162,6 @@ async function handleLogin() {
     return;
   }
 
-  // Fornecedor?
   const sup = (state.suppliers||[]).find(s => (s.email || "").toLowerCase() === email);
   if (sup && sup.passwordHash === passHash) {
     saveSession({ role: "supplier", id: sup.id });
@@ -1214,7 +1175,6 @@ async function handleLogin() {
 
 function handleLogout() {
   const s = loadSession();
-  // Se estiver em preview do cliente, volta para o admin sem exigir novo login
   if (s && s.preview && s.prevSession && s.prevSession.role === "admin") {
     saveSession(s.prevSession);
     initApp();
@@ -1226,7 +1186,6 @@ function handleLogout() {
 }
 
 // MODAIS
-
 function closeModal(id) {
   const m = el(id);
   if (m) m.classList.remove("show");
@@ -1237,17 +1196,11 @@ function closeModal(id) {
     if (btn) btn.disabled = false;
   }
 }
-
 function openModal(id) {
   const m = el(id);
   if (m) m.classList.add("show");
-  if (id === "modalNovoCliente") {
-    // prepara status do código e trava/destrava botão
-    setTimeout(updateCodigoStatus, 0);
-  }
+  if (id === "modalNovoCliente") setTimeout(updateCodigoStatus, 0);
 }
-
-
 
 // RENDER: Dashboard
 function renderDashboard() {
@@ -1307,32 +1260,28 @@ function renderDashboard() {
 
     const table = document.createElement("div");
     table.className = "files-list";
-    state.clients
-      .slice()
-      .sort((a,b)=> (b.code||"").localeCompare(a.code||""))
-      .forEach(c => {
-        const row = document.createElement("div");
-        row.className = "file-item";
-        const title = `${c.code || ""} – ${c.cliente || ""}`.replace(/\s+–\s+–/g," – ");
-        const updated = c.updatedAt ? formatDateBR(c.updatedAt) : "";
-        const okLinks = c.links && c.links.documentos && c.links.arquivos && c.links.renders && c.links.obra;
-        row.innerHTML = `
-          <div class="file-info">
-            <div class="file-name">${escapeHTML(title)}</div>
-            <div class="file-meta">${okLinks ? "Links ok" : "Pendente configurar links"} • Atualizado: ${updated || "—"}</div>
-          </div>
-          <div class="file-actions">
-            <button class="btn btn-secondary" onclick="openConfigHub('${c.id}')">Configurar</button>
-            <button class="btn btn-primary" onclick="openClientPreview('${c.id}')">Abrir</button>
-          </div>
-        `;
-        table.appendChild(row);
-      });
+    state.clients.slice().sort((a,b)=> (b.code||"").localeCompare(a.code||"")).forEach(c => {
+      const row = document.createElement("div");
+      row.className = "file-item";
+      const title = `${c.code || ""} – ${c.cliente || ""}`.replace(/\s+–\s+–/g," – ");
+      const updated = c.updatedAt ? formatDateBR(c.updatedAt) : "";
+      const okLinks = c.links && c.links.documentos && c.links.arquivos && c.links.renders && c.links.obra;
+      row.innerHTML = `
+        <div class="file-info">
+          <div class="file-name">${escapeHTML(title)}</div>
+          <div class="file-meta">${okLinks ? "Links ok" : "Pendente configurar links"} • Atualizado: ${updated || "—"}</div>
+        </div>
+        <div class="file-actions">
+          <button class="btn btn-secondary" onclick="openConfigHub('${c.id}')">Configurar</button>
+          <button class="btn btn-primary" onclick="openClientPreview('${c.id}')">Abrir</button>
+        </div>
+      `;
+      table.appendChild(row);
+    });
     list.appendChild(table);
     return;
   }
 
-  // Cliente / Fornecedor
   const client = session.role === "supplier"
     ? (state.suppliers || []).find(s => s.id === session.id)
     : (state.clients || []).find(c => c.id === session.id);
@@ -1365,18 +1314,14 @@ function renderDashboard() {
   container.appendChild(card);
 }
 
-
 function hubButton(label, url) {
   const disabled = !url;
   const safeUrl = url ? escapeAttr(url) : "#";
-
-  // Ícone: se o primeiro token não for alfanumérico, trata como emoji/ícone
   const parts = (label || "").trim().split(/\s+/);
   const first = parts[0] || "";
   const hasIcon = first && !/^[A-Za-z0-9]/.test(first);
   const icon = hasIcon ? first : "🔗";
   const title = hasIcon ? parts.slice(1).join(" ") : (label || "");
-
   return `
     <div class="project-card ${disabled ? "disabled" : ""}">
       <div class="hub-left">
@@ -1394,13 +1339,6 @@ function hubButton(label, url) {
     </div>
   `;
 }
-
-
-function openExternal(url) {
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-
-
 
 // RENDER: Cadastro (Admin)
 function renderCadastro() {
@@ -1438,7 +1376,6 @@ function renderCadastro() {
   }
 
   const wrap = document.createElement("div");
-  wrap.className = "stack";
   wrap.style.display = "grid";
   wrap.style.gap = "1rem";
 
@@ -1455,31 +1392,24 @@ function renderCadastro() {
     }
     const table = document.createElement("div");
     table.className = "files-list";
-    items
-      .slice()
-      .sort((a,b)=> (b.code||"").localeCompare(a.code||""))
-      .forEach(c => {
-        const titleLine = `${c.code || ""} – ${c.cliente || ""} – ${c.projeto || ""}`.replace(/\s+–\s+–/g," – ");
-        const row = document.createElement("div");
-        row.className = "file-item";
-        row.style.padding = "14px";
-        row.style.marginBottom = "10px";
-        row.style.borderRadius = "14px";
-        row.style.background = "rgba(255,255,255,0.9)";
-        row.innerHTML = `
-          <div class="file-info">
-            <div class="file-name" style="font-size:1.02rem; font-weight:700;">${escapeHTML(titleLine)}</div>
-            <div class="file-meta">${escapeHTML(c.type==="supplier" ? "Fornecedor" : "Cliente")}</div>
-          </div>
-          <div class="file-actions">
-            <button class="btn btn-secondary" onclick="openConfigHub('${c.id}')">Links</button>
-            <button class="btn btn-secondary" onclick="openClientDados('${c.id}')">Dados</button>
-            <button class="btn btn-secondary" onclick="resetClientPasswordPrompt('${c.id}')">Reset senha</button>
-            <button class="btn btn-secondary" onclick="deleteClient('${c.id}')">Excluir</button>
-          </div>
-        `;
-        table.appendChild(row);
-      });
+    items.slice().sort((a,b)=> (b.code||"").localeCompare(a.code||"")).forEach(c => {
+      const titleLine = `${c.code || ""} – ${c.cliente || ""} – ${c.projeto || ""}`.replace(/\s+–\s+–/g," – ");
+      const row = document.createElement("div");
+      row.className = "file-item";
+      row.innerHTML = `
+        <div class="file-info">
+          <div class="file-name">${escapeHTML(titleLine)}</div>
+          <div class="file-meta">${escapeHTML(c.type==="supplier" ? "Fornecedor" : "Cliente")}</div>
+        </div>
+        <div class="file-actions">
+          <button class="btn btn-secondary" onclick="openConfigHub('${c.id}')">Links</button>
+          <button class="btn btn-secondary" onclick="openClientDados('${c.id}')">Dados</button>
+          <button class="btn btn-secondary" onclick="resetClientPasswordPrompt('${c.id}')">Reset senha</button>
+          <button class="btn btn-secondary" onclick="deleteClient('${c.id}')">Excluir</button>
+        </div>
+      `;
+      table.appendChild(row);
+    });
     sec.appendChild(table);
     return sec;
   }
@@ -1488,7 +1418,6 @@ function renderCadastro() {
   wrap.appendChild(renderGroup("Fornecedores", fornecedores));
   list.appendChild(wrap);
 }
-
 
 function updateNovoTipoFields() {
   const t = (el("novoTipo")?.value || "client");
@@ -1502,9 +1431,8 @@ function updateNovoTipoFields() {
     if (fgNasc) fgNasc.style.display = "";
   }
 }
-// Ações Admin
+
 function openNovoCliente() {
-  // limpa campos
   ["novoTipo","novoClienteCodigo","novoClienteCliente","novoClienteProjeto","novoClienteEndereco","novoClienteTelefone","novoClienteEmail","novoClienteSenha","novoClienteNascimento"]
     .forEach(id => { const x = el(id); if (x) x.value=""; });
   updateNovoTipoFields();
@@ -1521,7 +1449,7 @@ async function criarCliente() {
   const telefone = (el("novoClienteTelefone").value || "").trim();
   const email = (el("novoClienteEmail").value || "").trim().toLowerCase();
   const senha = (el("novoClienteSenha").value || "");
-  const nascimento = (el("novoClienteNascimento").value || "").trim(); // YYYY-MM-DD
+  const nascimento = (el("novoClienteNascimento").value || "").trim();
 
   if (isCodeTaken(code)) {
     showToast("Já existe um acesso cadastrado com esse código.");
@@ -1542,9 +1470,7 @@ async function criarCliente() {
     return;
   }
 
-
   const tipo = (el("novoTipo")?.value || "client").trim();
-
   const passwordHash = await sha256(senha);
 
   const baseUser = {
@@ -1571,6 +1497,7 @@ async function criarCliente() {
     state.clients = state.clients || [];
     state.clients.push(created);
   }
+
   try { saveState(state); } catch(e) { return; }
 
   closeModal("modalNovoCliente");
@@ -1616,8 +1543,6 @@ function openConfigHub(accessId) {
   openModal("modalConfigHub");
 }
 
-
-
 async function salvarConfigHub() {
   const state = loadState();
   const accessId = el("configClientId").value;
@@ -1657,7 +1582,6 @@ function openClientDados(accessId) {
   const type = found.type;
 
   const sections = [];
-
   const pushSection = (title, rows) => {
     const filtered = rows.filter(r => r && r.value !== "" && r.value !== null && r.value !== undefined);
     if (!filtered.length) return;
@@ -1703,8 +1627,6 @@ function openClientDados(accessId) {
   openModal("modalDados");
 }
 
-
-
 async function resetClientPasswordPrompt(accessId) {
   const state = loadState();
   const found = findAccessById(state, accessId);
@@ -1713,10 +1635,7 @@ async function resetClientPasswordPrompt(accessId) {
 
   const nova = prompt("Defina a nova senha (mínimo 6 caracteres):");
   if (nova === null) return;
-  if ((nova || "").length < 6) {
-    showToast("Senha muito curta.");
-    return;
-  }
+  if ((nova || "").length < 6) { showToast("Senha muito curta."); return; }
   a.passwordHash = await sha256(nova);
   a.updatedAt = nowISO();
   saveState(state);
@@ -1729,7 +1648,6 @@ function deleteClient(accessId) {
   if (!found) return;
   const a = found.user;
   const label = `${a.code || ""} – ${a.cliente || ""}`.trim();
-
   if (!confirm(`Excluir "${label}"?`)) return;
 
   state.clients = (state.clients || []).filter(x => x.id !== accessId);
@@ -1742,7 +1660,6 @@ function deleteClient(accessId) {
 }
 
 function openClientPreview(clientId) {
-  // Preview: mantém a sessão de admin guardada para voltar sem logout
   const current = loadSession();
   const prev = current && current.role === "admin" ? current : { role: "admin" };
   saveSession({ role: "client", id: clientId, preview: true, prevSession: prev });
@@ -1767,9 +1684,7 @@ function escapeHTML(str) {
     "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
   }[s]));
 }
-function escapeAttr(str) {
-  return (str||"").replace(/"/g, "&quot;");
-}
+function escapeAttr(str) { return (str||"").replace(/"/g, "&quot;"); }
 
 // INIT
 function initApp() {
@@ -1789,15 +1704,12 @@ function initApp() {
     setUserUI({ name: displayName, role: session.role });
   }
 
-  // Cliente: esconde item Cadastro
   const menuItems = document.querySelectorAll(".sidebar-menu .menu-item");
   if (menuItems[1]) menuItems[1].style.display = (session.role === "admin") ? "flex" : "none";
 
-  // Mantém só duas seções; default dashboard
   showSection("dashboard");
 }
 
-// Clique fora fecha modal
 window.addEventListener("click", (e) => {
   const overlays = ["modalNovoCliente","modalConfigHub"];
   overlays.forEach(id => {
@@ -1806,9 +1718,7 @@ window.addEventListener("click", (e) => {
   });
 });
 
-// Start
 window.addEventListener("load", () => {
-  // garante estado inicial
   loadState();
   initApp();
   const nt = el("novoTipo");
@@ -1818,11 +1728,8 @@ window.addEventListener("load", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const codigo = el("novoClienteCodigo");
-  if (codigo) {
-    codigo.addEventListener("input", updateCodigoStatus);
-  }
+  if (codigo) codigo.addEventListener("input", updateCodigoStatus);
 });
-
 </script>
 </body>
 </html>
