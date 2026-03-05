@@ -212,9 +212,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Tipo de acesso</label>
+          <!-- FIX #3: values agora usam "cliente"/"fornecedor" para bater com a Edge Function -->
           <select class="form-input" id="novoTipo">
-            <option value="client" selected>Cliente</option>
-            <option value="supplier">Fornecedor</option>
+            <option value="cliente" selected>Cliente</option>
+            <option value="fornecedor">Fornecedor</option>
           </select>
         </div>
         <div class="form-group grid-span-2"><div id="codigoStatus" class="code-status"></div></div>
@@ -293,6 +294,8 @@
   <script>
     const SUPABASE_URL = "https://haqwejvyniytgihndeob.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
+    // FIX #1: ADMIN_CREATE_KEY agora declarada
+    const ADMIN_CREATE_KEY = "doppio-admin-2026";
     const FUNCTIONS_BASE = `${SUPABASE_URL}/functions/v1`;
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -321,7 +324,8 @@
 
     function setUserUI({ name, role }) {
       el("userName").textContent = name || "Usuário";
-      el("userRole").textContent = role === "admin" ? "Admin" : (role === "supplier" ? "Fornecedor" : "Cliente");
+      // FIX #2: roles agora usam "fornecedor"/"cliente" consistentemente
+      el("userRole").textContent = role === "admin" ? "Admin" : (role === "fornecedor" ? "Fornecedor" : "Cliente");
       el("userAvatar").textContent = (name || "?").trim().slice(0,1).toUpperCase();
       el("menuCadastro").style.display = (role === "admin") ? "flex" : "none";
     }
@@ -337,7 +341,7 @@
     }
 
     function showSection(name) {
-      const role = window.__currentRole || "client";
+      const role = window.__currentRole || "cliente";
       if (role !== "admin" && name !== "dashboard") name = "dashboard";
 
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
@@ -400,41 +404,34 @@
     }
     window.handleLogout = handleLogout;
 
-    async function getAccessToken() {
-      const { data } = await sb.auth.getSession();
-      return data?.session?.access_token || null;
-    }
-
+    // FIX #5: callFn padronizado — aceita string ou objeto como 3º argumento
     async function callFn(fnName, body, opts = {}) {
-  // opts: { method?: "POST"|"GET", requireAdminKey?: boolean }
-  const method = (opts.method || "POST").toUpperCase();
-  const requireAdminKey = opts.requireAdminKey !== false; // default true
+      const options = (typeof opts === "string") ? { method: opts } : opts;
+      const method = (options.method || "POST").toUpperCase();
+      const requireAdminKey = options.requireAdminKey !== false;
 
-  const headers = { "Content-Type": "application/json" };
+      const headers = { "Content-Type": "application/json" };
 
-  // Para Edge Functions admin (list-accesses / update-links / create-account),
-  // enviamos SOMENTE o header x-admin-key (sem Authorization/apikey) para evitar CORS.
-  if (requireAdminKey) {
-    if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada no index.html");
-    headers["x-admin-key"] = ADMIN_CREATE_KEY;
-  }
+      if (requireAdminKey) {
+        if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada no index.html");
+        headers["x-admin-key"] = ADMIN_CREATE_KEY;
+      }
 
-  const url = `${FUNCTIONS_BASE}/${fnName}`;
+      const url = `${FUNCTIONS_BASE}/${fnName}`;
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: method === "GET" ? undefined : JSON.stringify(body ?? {}),
-  });
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: method === "GET" ? undefined : JSON.stringify(body ?? {}),
+      });
 
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = json?.error || json?.message || `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
-  return json;
-}
-
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.error || json?.message || `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+      return json;
+    }
 
     function closeModal(id) {
       const m = el(id);
@@ -456,10 +453,11 @@
     window.openModal = openModal;
 
     function updateNovoTipoFields() {
-      const t = (el("novoTipo")?.value || "client");
+      // FIX #3: comparando com "fornecedor" em vez de "supplier"
+      const t = (el("novoTipo")?.value || "cliente");
       const fgTel = el("fgTelefone");
       const fgNasc = el("fgNascimento");
-      if (t === "supplier") {
+      if (t === "fornecedor") {
         if (fgTel) fgTel.style.display = "none";
         if (fgNasc) fgNasc.style.display = "none";
       } else {
@@ -481,12 +479,11 @@
     async function isCodeTaken(code) {
       const key = normalizeCode(code);
       if (!key) return false;
-      const list = await callFn("list-accesses", null, "POST");
-      const items = list?.items || list?.data || list?.clients || [];
-      const suppliers = list?.suppliers || [];
+      // FIX #2: list-accesses retorna tudo em "items", separamos por role
+      const list = await callFn("list-accesses", null, { method: "POST" });
+      const items = list?.items || [];
       const all = Array.isArray(items) ? items : [];
-      const sup = Array.isArray(suppliers) ? suppliers : [];
-      return [...all, ...sup].some(x => normalizeCode(x.code || x.codigo) === key);
+      return all.some(x => normalizeCode(x.codigo) === key);
     }
 
     async function updateCodigoStatus() {
@@ -553,14 +550,14 @@
       const container = el("dashboardContent");
       container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
 
-      const role = window.__currentRole || "client";
+      const role = window.__currentRole || "cliente";
 
       if (role === "admin") {
-        const resp = await callFn("list-accesses", null, "POST");
-        const clients = resp?.clients || resp?.items || resp?.data || [];
-        const suppliers = resp?.suppliers || [];
-        const cArr = Array.isArray(clients) ? clients : [];
-        const sArr = Array.isArray(suppliers) ? suppliers : [];
+        const resp = await callFn("list-accesses", null, { method: "POST" });
+        // FIX #2: separar clientes e fornecedores a partir do campo "role" em "items"
+        const items = Array.isArray(resp?.items) ? resp.items : [];
+        const cArr = items.filter(x => x.role === "cliente");
+        const sArr = items.filter(x => x.role === "fornecedor");
 
         container.innerHTML = "";
         const header = document.createElement("div");
@@ -587,10 +584,7 @@
         container.appendChild(card);
 
         const list = card.querySelector("#adminClientsList");
-        const all = [
-          ...cArr.map(x => ({...x, type:"client"})),
-          ...sArr.map(x => ({...x, type:"supplier"})),
-        ].sort((a,b) => (b.code||b.codigo||"").localeCompare(a.code||a.codigo||""));
+        const all = items.sort((a,b) => (b.codigo||"").localeCompare(a.codigo||""));
 
         if (!all.length) {
           list.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado ainda.</p>`;
@@ -600,19 +594,19 @@
         const table = document.createElement("div");
         table.className = "files-list";
         all.forEach(a => {
-          const code = a.code || a.codigo || "";
-          const cliente = a.cliente || a.nome || a.name || "";
-          const projeto = a.projeto || a.project || "";
-          const title = `${code} – ${cliente} – ${projeto}`.replace(/\\s+–\\s+–/g," – ");
+          const code = a.codigo || "";
+          const nome = a.nome || "";
+          const projeto = a.projeto || "";
+          const title = [code, nome, projeto].filter(Boolean).join(" – ");
           const row = document.createElement("div");
           row.className = "file-item";
           row.innerHTML = `
             <div class="file-info">
               <div class="file-name">${escapeHTML(title)}</div>
-              <div class="file-meta">${escapeHTML(a.type==="supplier" ? "Fornecedor" : "Cliente")}</div>
+              <div class="file-meta">${escapeHTML(a.role === "fornecedor" ? "Fornecedor" : "Cliente")}</div>
             </div>
             <div class="file-actions">
-              <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.type)}')">Links</button>
+              <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.role)}')">Links</button>
             </div>
           `;
           table.appendChild(row);
@@ -621,41 +615,37 @@
         return;
       }
 
-      const resp = await callFn("list-accesses", null, "POST");
-      const items = resp?.items || resp?.data || resp?.clients || [];
-      const suppliers = resp?.suppliers || [];
-      const arr = Array.isArray(items) ? items : [];
-      const sArr = Array.isArray(suppliers) ? suppliers : [];
+      // Cliente ou fornecedor logado
+      const resp = await callFn("list-accesses", null, { method: "POST" });
+      const items = Array.isArray(resp?.items) ? resp.items : [];
 
       const { data: me } = await sb.auth.getUser();
       const uid = me?.user?.id;
 
-      let access = null;
-      if (role === "supplier") access = sArr.find(x => x.user_id === uid || x.id === uid) || sArr[0] || null;
-      else access = arr.find(x => x.user_id === uid || x.id === uid) || arr[0] || null;
+      const access = items.find(x => x.id === uid) || null;
 
       if (!access) {
         container.innerHTML = `<div class="card"><p>Nenhum acesso encontrado para este usuário.</p></div>`;
         return;
       }
 
-      const code = access.code || access.codigo || "";
-      const cliente = access.cliente || access.nome || access.name || "";
-      const projeto = access.projeto || access.project || "";
-      const title = `${code} – ${cliente} – ${projeto}`.replace(/\\s+–\\s+–/g," – ");
+      const code = access.codigo || "";
+      const nome = access.nome || "";
+      const projeto = access.projeto || "";
+      const title = [code, nome, projeto].filter(Boolean).join(" – ");
 
-      const links = access.links || access;
-      const documentos = links.documentos || links.link_documentos || "";
-      const arquivos = links.arquivos || links.link_arquivos || "";
-      const renders = links.renders || links.link_renders || "";
-      const obra = links.obra || links.link_obra || "";
+      const links = access.links || {};
+      const documentos = links.documentos || "";
+      const arquivos = links.arquivos || "";
+      const renders = links.renders || "";
+      const obra = links.obra || "";
 
       container.innerHTML = `
         <div class="card">
           <h2 style="margin-bottom:0.5rem;">${escapeHTML(title)}</h2>
           <p style="color:var(--texto-suave); margin-top:0; margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
           <div class="projects-grid" style="margin-top:0.5rem;">
-            ${role==="supplier"
+            ${role === "fornecedor"
               ? (hubButton("🧩 Arquivos de Projeto", arquivos) + hubButton("🖼️ Renders", renders))
               : (hubButton("📄 Documentos", documentos) + hubButton("🧩 Arquivos de Projeto", arquivos) + hubButton("🖼️ Renders", renders) + hubButton("🏗️ Imagens de Obra", obra))}
           </div>
@@ -664,17 +654,15 @@
     }
 
     async function renderCadastro() {
-      const role = window.__currentRole || "client";
+      const role = window.__currentRole || "cliente";
       if (role !== "admin") { showSection("dashboard"); return; }
 
       const container = el("clientesContent");
       container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
 
-      const resp = await callFn("list-accesses", null, "POST");
-      const clients = resp?.clients || resp?.items || resp?.data || [];
-      const suppliers = resp?.suppliers || [];
-      const cArr = Array.isArray(clients) ? clients : [];
-      const sArr = Array.isArray(suppliers) ? suppliers : [];
+      const resp = await callFn("list-accesses", null, { method: "POST" });
+      // FIX #2: separar por role dentro de items
+      const items = Array.isArray(resp?.items) ? resp.items : [];
 
       container.innerHTML = "";
       const card = document.createElement("div");
@@ -692,10 +680,7 @@
       container.appendChild(card);
 
       const list = card.querySelector("#cadList");
-      const all = [
-        ...cArr.map(x => ({...x, type:"client"})),
-        ...sArr.map(x => ({...x, type:"supplier"})),
-      ].sort((a,b) => (b.code||b.codigo||"").localeCompare(a.code||a.codigo||""));
+      const all = items.sort((a,b) => (b.codigo||"").localeCompare(a.codigo||""));
 
       if (!all.length) {
         list.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado.</p>`;
@@ -705,19 +690,19 @@
       const table = document.createElement("div");
       table.className = "files-list";
       all.forEach(a => {
-        const code = a.code || a.codigo || "";
-        const cliente = a.cliente || a.nome || a.name || "";
-        const projeto = a.projeto || a.project || "";
-        const titleLine = `${code} – ${cliente} – ${projeto}`.replace(/\\s+–\\s+–/g," – ");
+        const code = a.codigo || "";
+        const nome = a.nome || "";
+        const projeto = a.projeto || "";
+        const titleLine = [code, nome, projeto].filter(Boolean).join(" – ");
         const row = document.createElement("div");
         row.className = "file-item";
         row.innerHTML = `
           <div class="file-info">
             <div class="file-name">${escapeHTML(titleLine)}</div>
-            <div class="file-meta">${escapeHTML(a.type==="supplier" ? "Fornecedor" : "Cliente")}</div>
+            <div class="file-meta">${escapeHTML(a.role === "fornecedor" ? "Fornecedor" : "Cliente")}</div>
           </div>
           <div class="file-actions">
-            <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.type)}')">Links</button>
+            <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.role)}')">Links</button>
           </div>
         `;
         table.appendChild(row);
@@ -734,7 +719,8 @@
       const email = (el("novoClienteEmail").value || "").trim().toLowerCase();
       const senha = (el("novoClienteSenha").value || "");
       const nascimento = (el("novoClienteNascimento").value || "").trim();
-      const tipo = (el("novoTipo")?.value || "client").trim();
+      // FIX #3: tipo já vem como "cliente" ou "fornecedor" direto do select
+      const tipo = (el("novoTipo")?.value || "cliente").trim();
 
       if (!code || !cliente || !projeto || !email || !senha) {
         showToast("Preencha: código, cliente, projeto, email e senha.", true);
@@ -758,7 +744,7 @@
           endereco: endereco || null,
           telefone: telefone || null,
           nascimento: nascimento || null
-        }, "POST");
+        }, { method: "POST" });
 
         closeModal("modalNovoCliente");
         showToast("Acesso criado. Agora configure os links do Drive.");
@@ -772,28 +758,23 @@
     }
     window.criarCliente = criarCliente;
 
-    async function openConfigHub(accessId, type) {
-      const resp = await callFn("list-accesses", null, "POST");
-      const clients = resp?.clients || resp?.items || resp?.data || [];
-      const suppliers = resp?.suppliers || [];
-      const cArr = Array.isArray(clients) ? clients : [];
-      const sArr = Array.isArray(suppliers) ? suppliers : [];
-
-      const list = (type === "supplier") ? sArr : cArr;
-      const a = list.find(x => x.id === accessId) || null;
+    async function openConfigHub(accessId, roleType) {
+      const resp = await callFn("list-accesses", null, { method: "POST" });
+      const items = Array.isArray(resp?.items) ? resp.items : [];
+      const a = items.find(x => x.id === accessId) || null;
       if (!a) { showToast("Acesso não encontrado.", true); return; }
 
       el("configClientId").value = a.id;
-      el("configClientType").value = type;
+      el("configClientType").value = roleType;
 
-      const code = a.code || a.codigo || "";
-      const cliente = a.cliente || a.nome || a.name || "";
-      const projeto = a.projeto || a.project || "";
-      el("configClientTitle").textContent = `${code} – ${cliente} – ${projeto}`.replace(/\\s+–\\s+–/g," – ");
+      const code = a.codigo || "";
+      const nome = a.nome || "";
+      const projeto = a.projeto || "";
+      el("configClientTitle").textContent = [code, nome, projeto].filter(Boolean).join(" – ");
 
       const wrapDocs = el("wrapLinkDocumentos");
       const wrapObra = el("wrapLinkObra");
-      if (type === "supplier") {
+      if (roleType === "fornecedor") {
         if (wrapDocs) wrapDocs.style.display = "none";
         if (wrapObra) wrapObra.style.display = "none";
       } else {
@@ -801,11 +782,11 @@
         if (wrapObra) wrapObra.style.display = "";
       }
 
-      const links = a.links || a;
-      el("linkDocumentos").value = links.documentos || links.link_documentos || "";
-      el("linkArquivos").value = links.arquivos || links.link_arquivos || "";
-      el("linkRenders").value = links.renders || links.link_renders || "";
-      el("linkObra").value = links.obra || links.link_obra || "";
+      const links = a.links || {};
+      el("linkDocumentos").value = links.documentos || "";
+      el("linkArquivos").value = links.arquivos || "";
+      el("linkRenders").value = links.renders || "";
+      el("linkObra").value = links.obra || "";
 
       openModal("modalConfigHub");
     }
@@ -813,23 +794,22 @@
 
     async function salvarConfigHub() {
       const accessId = el("configClientId").value;
-      const type = el("configClientType").value || "client";
+      const roleType = el("configClientType").value || "cliente";
 
-      let links = {
-        documentos: (el("linkDocumentos").value || "").trim(),
-        arquivos: (el("linkArquivos").value || "").trim(),
-        renders: (el("linkRenders").value || "").trim(),
-        obra: (el("linkObra").value || "").trim(),
+      // FIX #4: payload corrigido — usa "profile_id" e campos soltos (sem objeto "links")
+      let payload = {
+        profile_id: accessId,
+        arquivos: (el("linkArquivos").value || "").trim() || null,
+        renders: (el("linkRenders").value || "").trim() || null,
       };
-      if (type === "supplier") {
-        links = {
-          arquivos: (el("linkArquivos").value || "").trim(),
-          renders: (el("linkRenders").value || "").trim(),
-        };
+
+      if (roleType !== "fornecedor") {
+        payload.documentos = (el("linkDocumentos").value || "").trim() || null;
+        payload.obra = (el("linkObra").value || "").trim() || null;
       }
 
       try {
-        await callFn("update-links", { id: accessId, role: type, links }, "POST");
+        await callFn("update-links", payload, { method: "POST" });
         closeModal("modalConfigHub");
         showToast("Configuração salva.");
         await renderDashboard();
@@ -845,7 +825,7 @@
       const session = data?.session;
       if (!session) { showLogin(); return; }
 
-      let role = "client";
+      let role = "cliente";
       let nome = session.user.email || "Usuário";
 
       try {
@@ -857,7 +837,7 @@
 
         if (!error && profile) {
           role = profile.role || role;
-          nome = profile.nome || profile.name || nome;
+          nome = profile.nome || nome;
         }
       } catch (e) { console.warn(e); }
 
