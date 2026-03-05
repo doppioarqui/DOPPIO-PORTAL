@@ -1,108 +1,443 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doppio Portal</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-
-body{
-font-family: Arial, sans-serif;
-background:#f3efe8;
-display:flex;
-align-items:center;
-justify-content:center;
-height:100vh;
-margin:0;
-}
-
-.card{
-background:white;
-padding:40px;
-border-radius:12px;
-width:360px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
-
-h1{
-text-align:center;
-margin-bottom:30px;
-letter-spacing:4px;
-}
-
-input{
-width:100%;
-padding:12px;
-margin-bottom:12px;
-border-radius:6px;
-border:1px solid #ddd;
-}
-
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:6px;
-background:#c8734e;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-</style>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>DOPPIO Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--verde:#4A5E4A;--terracota:#C4714F;--terracota-dark:#A85A3A;--bege:#F5F0E8;--bege-dark:#EDE6D6;--texto:#2C2416;--texto-suave:#8A7D6B;--branco:#FDFBF7}
+    body{font-family:'Montserrat',sans-serif;background:var(--bege);color:var(--texto);min-height:100vh}
+    .login-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+    .login-box{background:var(--branco);padding:3rem;border-radius:16px;box-shadow:0 8px 32px rgba(44,36,22,.1);width:100%;max-width:420px}
+    .login-logo{font-size:2rem;font-weight:300;letter-spacing:.3em;text-align:center;margin-bottom:.5rem;color:var(--verde)}
+    .login-subtitle{text-align:center;color:var(--texto-suave);font-size:.9rem;margin-bottom:2rem}
+    .form-group{margin-bottom:1.25rem}
+    .form-label{display:block;font-size:.85rem;font-weight:500;margin-bottom:.5rem}
+    .form-input{width:100%;padding:.9rem;border:1px solid var(--bege-dark);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.95rem;background:var(--bege);transition:.2s}
+    .form-input:focus{outline:none;border-color:var(--terracota);background:var(--branco)}
+    .password-wrapper{position:relative}
+    .password-toggle{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--texto-suave)}
+    .btn-login{width:100%;padding:1rem;background:var(--terracota);color:#fff;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:.3s}
+    .btn-login:hover{background:var(--terracota-dark);transform:translateY(-2px)}
+    .error-message{background:#FEE2E2;color:#B91C1C;padding:.75rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;display:none}
+    .portal-container{display:none;min-height:100vh}
+    .sidebar{width:260px;background:var(--verde);display:flex;flex-direction:column;padding:2rem 0;position:fixed;inset:0 auto 0 0}
+    .sidebar-logo{font-size:1.5rem;font-weight:300;letter-spacing:.25em;color:var(--bege);padding:0 1.5rem 2rem;border-bottom:1px solid rgba(245,240,232,.1)}
+    .sidebar-menu{flex:1;padding:2rem 0}
+    .menu-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.5rem;color:rgba(245,240,232,.6);cursor:pointer;transition:.2s;border-left:3px solid transparent}
+    .menu-item:hover{background:rgba(245,240,232,.05);color:var(--bege)}
+    .menu-item.active{background:rgba(245,240,232,.08);color:var(--bege);border-left-color:var(--terracota)}
+    .sidebar-user{padding:1.5rem;border-top:1px solid rgba(245,240,232,.1)}
+    .user-info{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;color:var(--bege)}
+    .user-avatar{width:40px;height:40px;border-radius:50%;background:var(--terracota);display:flex;align-items:center;justify-content:center;font-weight:600}
+    .user-name{font-size:.9rem;font-weight:500}
+    .user-role{font-size:.75rem;color:rgba(245,240,232,.5)}
+    .btn-logout{width:100%;padding:.6rem;background:rgba(245,240,232,.08);border:1px solid rgba(245,240,232,.15);border-radius:6px;color:rgba(245,240,232,.7);cursor:pointer;transition:.2s}
+    .btn-logout:hover{background:rgba(245,240,232,.15);color:var(--bege)}
+    .main-content{margin-left:260px;padding:2.5rem;min-height:100vh}
+    .page-header{margin-bottom:2rem}
+    .page-title{font-size:2rem;font-weight:500;margin-bottom:.25rem}
+    .page-subtitle{color:var(--texto-suave);font-size:.9rem}
+    .section{display:none}.section.active{display:block}
+    .card{background:var(--branco);border-radius:12px;padding:2rem;box-shadow:0 4px 24px rgba(44,36,22,.08);margin-bottom:1.5rem}
+    .btn{padding:.75rem 1.5rem;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:600;cursor:pointer;transition:.2s;border:none}
+    .btn-primary{background:var(--terracota);color:#fff}.btn-primary:hover{background:var(--terracota-dark)}
+    .btn-secondary{background:var(--bege-dark);color:var(--texto)}
+    .files-list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+    .file-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;border-radius:14px;border:1px solid rgba(0,0,0,.06);background:rgba(255,255,255,.92)}
+    .file-name{font-weight:700;font-size:1.02rem;line-height:1.25;margin-bottom:4px}
+    .file-meta{color:var(--texto-suave);font-size:.9rem}
+    .file-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+    .projects-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    @media (max-width:900px){.projects-grid{grid-template-columns:1fr}}
+    .project-card{background:var(--branco);border:1px solid rgba(44,36,22,.10);border-radius:14px;padding:16px;transition:.15s;display:flex;align-items:stretch;justify-content:space-between;gap:12px;min-height:92px}
+    .project-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(44,36,22,.10);border-color:rgba(196,113,79,.35)}
+    .project-card.disabled:hover{transform:none;box-shadow:none;border-color:rgba(44,36,22,.10)}
+    .hub-left{display:flex;gap:12px;align-items:flex-start}
+    .hub-icon{width:44px;height:44px;border-radius:12px;background:var(--bege-dark);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 44px}
+    .hub-title{font-weight:700;font-size:1rem}
+    .hub-sub{color:var(--texto-suave);font-size:.9rem;margin-top:4px;line-height:1.25}
+    .hub-open{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:700;font-size:.9rem;background:var(--terracota);color:#fff;white-space:nowrap}
+    .hub-open:hover{background:var(--terracota-dark)}
+    .hub-open[aria-disabled="true"]{background:rgba(0,0,0,.06);color:rgba(44,36,22,.45);pointer-events:none}
+    .toast{position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;border-radius:8px;background:var(--verde);color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);transform:translateY(100px);opacity:0;transition:.3s;z-index:1000}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.error{background:#B91C1C}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--branco);border-radius:16px;padding:2rem;width:90%;max-width:920px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .modal-scroll{max-height:85vh;overflow:auto}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.25rem}
+    .grid-span-2{grid-column:1/-1}
+    @media (max-width:768px){.sidebar{width:200px}.main-content{margin-left:200px;padding:1.5rem}.form-grid{grid-template-columns:1fr}.grid-span-2{grid-column:auto}}
+    .code-status{font-size:.8rem;margin-top:-.5rem;color:var(--texto-suave)}
+    .code-status.ok{color:#0A8A3A}.code-status.warn{color:#B91C1C}
+  </style>
 </head>
-
 <body>
-
-<div class="card">
-
-<h1>DOPPIO</h1>
-
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Senha">
-
-<button onclick="login()">Entrar</button>
-
+<div class="login-container" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">DOPPIO</div>
+    <div class="login-subtitle">Portal do Cliente</div>
+    <div class="error-message" id="loginError"></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="loginEmail" type="email" placeholder="seu@email.com"/></div>
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <div class="password-wrapper">
+        <input class="form-input" id="loginPassword" type="password" placeholder="••••••••" style="padding-right:3rem"/>
+        <button class="password-toggle" type="button" onclick="togglePassword()">
+          <svg fill="none" height="20" id="eyeIcon" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button class="btn-login" onclick="handleLogin()">Entrar</button>
+  </div>
 </div>
 
+<div class="portal-container" id="portalPage">
+  <aside class="sidebar">
+    <div class="sidebar-logo">DOPPIO</div>
+    <div class="sidebar-menu">
+      <div class="menu-item active" id="menuDash" onclick="showSection('dashboard')">Dashboard</div>
+      <div class="menu-item" id="menuCad" onclick="showSection('cadastro')">Cadastro</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div><div class="user-name" id="userName">Usuário</div><div class="user-role" id="userRole">Cliente</div></div>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">Sair</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <section class="section active" id="sectionDashboard">
+      <div class="page-header"><h1 class="page-title" id="dashboardTitle">Dashboard</h1><p class="page-subtitle" id="dashboardSub">Bem-vindo ao portal</p></div>
+      <div id="dashboardContent"><div class="card"><p>Carregando…</p></div></div>
+    </section>
+
+    <section class="section" id="sectionCadastro">
+      <div class="page-header"><h1 class="page-title">Cadastro</h1><p class="page-subtitle">Cadastrar e configurar links</p></div>
+      <div id="cadastroContent"><div class="card"><p>Carregando…</p></div></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalNovoAcesso">
+  <div class="modal modal-scroll">
+    <h2>Novo Acesso</h2>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Código</label><input class="form-input" id="newCode" type="text" placeholder="Ex: 2026-014"/></div>
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select class="form-input" id="newRole"><option value="client" selected>Cliente</option><option value="supplier">Fornecedor</option></select>
+      </div>
+      <div class="form-group grid-span-2"><div id="codeStatus" class="code-status"></div></div>
+      <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="newName" type="text"/></div>
+      <div class="form-group grid-span-2"><label class="form-label">Projeto</label><input class="form-input" id="newProject" type="text"/></div>
+      <div class="form-group grid-span-2"><label class="form-label">Endereço</label><input class="form-input" id="newAddress" type="text" placeholder="(opcional)"/></div>
+      <div class="form-group" id="wrapPhone"><label class="form-label">Telefone</label><input class="form-input" id="newPhone" type="text" placeholder="(opcional)"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="newEmail" type="email"/></div>
+      <div class="form-group"><label class="form-label">Senha</label><input class="form-input" id="newPassword" type="password" placeholder="mín. 6"/></div>
+      <div class="form-group" id="wrapBirth"><label class="form-label">Nascimento</label><input class="form-input" id="newBirth" type="date"/></div>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1.25rem;">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalNovoAcesso')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" id="btnCreate" onclick="createAccess()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalLinks">
+  <div class="modal modal-scroll">
+    <h2>Configurar Links</h2>
+    <input id="linksUserId" type="hidden"/>
+    <p style="color:var(--texto-suave);margin-bottom:1rem;">Acesso: <strong id="linksTitle"></strong></p>
+
+    <div class="form-group" id="wrapDocs"><label class="form-label">Documentos</label><input class="form-input" id="lnkDocs" type="url"/></div>
+    <div class="form-group"><label class="form-label">Arquivos de Projeto</label><input class="form-input" id="lnkFiles" type="url"/></div>
+    <div class="form-group"><label class="form-label">Renders</label><input class="form-input" id="lnkRenders" type="url"/></div>
+    <div class="form-group" id="wrapWork"><label class="form-label">Imagens de Obra</label><input class="form-input" id="lnkWork" type="url"/></div>
+
+    <div style="display:flex;gap:1rem;margin-top:1.25rem;">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalLinks')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveLinks()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-
+/** COLE A SUA PUBLISHABLE KEY (anon) AQUI */
 const SUPABASE_URL = "https://haqwejvyniytgihndeob.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
+const FN_CREATE_ACCOUNT = SUPABASE_URL + "/functions/v1/create-account";
 
-const SUPABASE_ANON_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const el = (id) => document.getElementById(id);
 
-const supabase = window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_ANON_KEY
-);
+function toast(msg, isErr=false){
+  const t = el("toast");
+  t.textContent = msg;
+  t.classList.toggle("error", !!isErr);
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+function showLogin(){ el("loginPage").style.display="flex"; el("portalPage").style.display="none"; el("loginError").style.display="none"; }
+function showPortal(){ el("loginPage").style.display="none"; el("portalPage").style.display="flex"; }
+function togglePassword(){ const i=el("loginPassword"); const e=el("eyeIcon"); const p=i.type==="password"; i.type=p?"text":"password"; if(e) e.style.opacity=p?"0.6":"1"; }
+function setUserUI(name, role){ el("userName").textContent=name||"Usuário"; el("userRole").textContent=(role==="admin")?"Admin":(role==="supplier"?"Fornecedor":"Cliente"); el("userAvatar").textContent=(name||"?").trim().slice(0,1).toUpperCase(); }
+function setMenuActive(which){ el("menuDash").classList.toggle("active", which==="dashboard"); el("menuCad").classList.toggle("active", which==="cadastro"); }
+function showSection(which){ el("sectionDashboard").classList.toggle("active", which==="dashboard"); el("sectionCadastro").classList.toggle("active", which==="cadastro"); setMenuActive(which); if(which==="dashboard") renderDashboard(); if(which==="cadastro") renderCadastro(); }
+function closeModal(id){ el(id).classList.remove("show"); }
+function openModal(id){ el(id).classList.add("show"); }
 
-async function login(){
+function normalizeCode(v){ return (v||"").trim().toLowerCase(); }
+async function isCodeTaken(code){
+  const key = normalizeCode(code);
+  if(!key) return false;
+  const { data, error } = await supabase.from("profiles").select("id").eq("code", key).limit(1);
+  if(error) return false;
+  return (data||[]).length>0;
+}
+async function updateCodeStatus(){
+  const code = el("newCode").value || "";
+  const status = el("codeStatus");
+  const btn = el("btnCreate");
+  const key = normalizeCode(code);
 
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-const { data, error } =
-await supabase.auth.signInWithPassword({
-email,
-password
-});
-
-if(error){
-
-alert("Email ou senha inválidos");
-return;
-
+  if(!key){ status.textContent="⚠️ Código é obrigatório"; status.className="code-status warn"; btn.disabled=true; return; }
+  const taken = await isCodeTaken(key);
+  if(taken){ status.textContent="⚠️ Já existe um acesso com esse código"; status.className="code-status warn"; btn.disabled=true; return; }
+  status.textContent="✅ Código disponível"; status.className="code-status ok"; btn.disabled=false;
+}
+function updateNewRoleFields(){
+  const role = el("newRole").value;
+  el("wrapPhone").style.display = (role==="supplier") ? "none" : "";
+  el("wrapBirth").style.display = (role==="supplier") ? "none" : "";
 }
 
-alert("Login realizado com sucesso");
+async function handleLogin(){
+  const email=(el("loginEmail").value||"").trim().toLowerCase();
+  const password=(el("loginPassword").value||"");
+  const err=el("loginError");
+  if(!email||!password){ err.textContent="Preencha email e senha."; err.style.display="block"; return; }
 
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error){ err.textContent=error.message||"Falha no login."; err.style.display="block"; return; }
+  await initApp();
+}
+async function handleLogout(){ await supabase.auth.signOut(); showLogin(); }
+
+async function getMyProfile(){
+  const { data:{ user } } = await supabase.auth.getUser();
+  if(!user) return null;
+  const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  if(error) return null;
+  return data;
 }
 
+function escapeHTML(str){ return (str||"").replace(/[&<>"']/g, s => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[s])); }
+function escapeAttr(str){ return (str||"").replace(/"/g, "&quot;"); }
+
+function hubButton(label, url){
+  const disabled=!url;
+  const safe=url?escapeAttr(url):"#";
+  return `
+    <div class="project-card ${disabled?"disabled":""}">
+      <div class="hub-left">
+        <div class="hub-icon">🔗</div>
+        <div>
+          <div class="hub-title">${escapeHTML(label)}</div>
+          <div class="hub-sub">${disabled?"Link não configurado":"Clique para abrir a pasta no Google Drive"}</div>
+        </div>
+      </div>
+      <div class="hub-actions">
+        <a class="hub-open" href="${disabled?"#":safe}" target="_blank" rel="noopener noreferrer" aria-disabled="${disabled?"true":"false"}">
+          Abrir no Drive <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+async function renderDashboard(){
+  const box=el("dashboardContent");
+  box.innerHTML=`<div class="card"><p>Carregando…</p></div>`;
+  const me=await getMyProfile();
+  if(!me){ box.innerHTML=`<div class="card"><p>Perfil não encontrado. Confira tabela profiles + RLS.</p></div>`; return; }
+
+  el("dashboardTitle").textContent=(me.role==="admin")?"Dashboard":"Seu Portal";
+  el("dashboardSub").textContent=(me.role==="admin")?"Gerencie acessos e links do Drive":"Acesso rápido às pastas do Google Drive";
+
+  if(me.role==="admin"){
+    const { data:profiles, error } = await supabase.from("profiles").select("id,code,name,role,project").neq("role","admin").order("code",{ascending:false});
+    if(error){ box.innerHTML=`<div class="card"><p>Erro: ${escapeHTML(error.message)}</p></div>`; return; }
+
+    box.innerHTML=`
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div><h3 style="margin-bottom:.35rem;">Acessos cadastrados</h3><p style="color:var(--texto-suave);margin:0;">Crie e configure links.</p></div>
+          <button class="btn btn-primary" onclick="openNewAccess()">+ Novo Acesso</button>
+        </div>
+        <div id="adminList" style="margin-top:1.25rem;"></div>
+      </div>
+    `;
+    const list=document.getElementById("adminList");
+    if(!profiles||profiles.length===0){ list.innerHTML=`<p style="color:var(--texto-suave);margin:.75rem 0 0;">Nenhum acesso.</p>`; return; }
+
+    const wrap=document.createElement("div"); wrap.className="files-list";
+    profiles.forEach(p=>{
+      const title=`${p.code||""} – ${p.name||""} – ${p.project||""}`.replace(/\s+–\s+–/g," – ");
+      const row=document.createElement("div"); row.className="file-item";
+      row.innerHTML=`
+        <div class="file-info">
+          <div class="file-name">${escapeHTML(title)}</div>
+          <div class="file-meta">${escapeHTML(p.role==="supplier"?"Fornecedor":"Cliente")}</div>
+        </div>
+        <div class="file-actions">
+          <button class="btn btn-secondary" onclick="openLinks('${p.id}','${escapeAttr(title)}','${p.role}')">Links</button>
+        </div>
+      `;
+      wrap.appendChild(row);
+    });
+    list.appendChild(wrap);
+    return;
+  }
+
+  const { data:links } = await supabase.from("drive_links").select("*").eq("user_id", me.id).single();
+  const L=links||{};
+  const title=`${me.code||""} – ${me.name||""} – ${me.project||""}`.replace(/\s+–\s+–/g," – ");
+
+  const buttons = (me.role==="supplier")
+    ? (hubButton("Arquivos de Projeto", L.arquivos) + hubButton("Renders", L.renders))
+    : (hubButton("Documentos", L.documentos) + hubButton("Arquivos de Projeto", L.arquivos) + hubButton("Renders", L.renders) + hubButton("Imagens de Obra", L.obra));
+
+  box.innerHTML=`
+    <div class="card">
+      <h2 style="margin-bottom:.5rem;">${escapeHTML(title)}</h2>
+      <p style="color:var(--texto-suave);margin-top:0;margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
+      <div class="projects-grid" style="margin-top:.5rem;">${buttons}</div>
+    </div>
+  `;
+}
+
+async function renderCadastro(){
+  const me=await getMyProfile();
+  const box=el("cadastroContent");
+  if(!me||me.role!=="admin"){ box.innerHTML=`<div class="card"><p>Apenas admin.</p></div>`; return; }
+  box.innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div><h3 style="margin-bottom:.35rem;">Cadastro</h3><p style="color:var(--texto-suave);margin:0;">Use “+ Novo Acesso”.</p></div>
+        <button class="btn btn-primary" onclick="openNewAccess()">+ Novo Acesso</button>
+      </div>
+      <p style="color:var(--texto-suave);margin-top:1rem;">A lista fica no Dashboard.</p>
+    </div>
+  `;
+}
+
+function openNewAccess(){
+  ["newCode","newName","newProject","newAddress","newPhone","newEmail","newPassword","newBirth"].forEach(id=>el(id).value="");
+  el("newRole").value="client";
+  updateNewRoleFields();
+  el("codeStatus").textContent="";
+  el("codeStatus").className="code-status";
+  el("btnCreate").disabled=false;
+  openModal("modalNovoAcesso");
+  setTimeout(updateCodeStatus,0);
+}
+
+async function createAccess(){
+  const code=(el("newCode").value||"").trim();
+  const role=(el("newRole").value||"client").trim();
+  const name=(el("newName").value||"").trim();
+  const project=(el("newProject").value||"").trim();
+  const address=(el("newAddress").value||"").trim();
+  const phone=(el("newPhone").value||"").trim();
+  const email=(el("newEmail").value||"").trim().toLowerCase();
+  const password=(el("newPassword").value||"");
+  const birth=(el("newBirth").value||"").trim();
+
+  if(!code||!name||!project||!email||!password){ toast("Preencha: código, nome, projeto, email e senha.",true); return; }
+  if(password.length<6){ toast("Senha muito curta (mínimo 6).",true); return; }
+  if(await isCodeTaken(code)){ toast("Já existe um acesso com esse código.",true); return; }
+
+  const { data:{ session } } = await supabase.auth.getSession();
+  if(!session){ toast("Sessão expirada. Faça login novamente.",true); await handleLogout(); return; }
+
+  const payload={ code, role, name, project, address, phone, birth, email, password };
+
+  const res=await fetch(FN_CREATE_ACCOUNT,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+session.access_token },
+    body: JSON.stringify(payload)
+  });
+
+  let out=null; try{ out=await res.json(); }catch(e){}
+  if(!res.ok){ toast(out?.error||("Erro ao criar ("+res.status+")"),true); return; }
+
+  toast("Acesso criado. Configure os links.");
+  closeModal("modalNovoAcesso");
+  await renderDashboard();
+}
+
+async function openLinks(userId,title,role){
+  el("linksUserId").value=userId;
+  el("linksTitle").textContent=title;
+  el("wrapDocs").style.display=(role==="supplier")?"none":"";
+  el("wrapWork").style.display=(role==="supplier")?"none":"";
+
+  const { data } = await supabase.from("drive_links").select("*").eq("user_id", userId).single();
+  const L=data||{};
+  el("lnkDocs").value=L.documentos||"";
+  el("lnkFiles").value=L.arquivos||"";
+  el("lnkRenders").value=L.renders||"";
+  el("lnkWork").value=L.obra||"";
+  openModal("modalLinks");
+}
+
+async function saveLinks(){
+  const userId=el("linksUserId").value;
+  if(!userId) return;
+
+  const patch={
+    user_id:userId,
+    documentos:(el("lnkDocs").value||"").trim(),
+    arquivos:(el("lnkFiles").value||"").trim(),
+    renders:(el("lnkRenders").value||"").trim(),
+    obra:(el("lnkWork").value||"").trim(),
+    updated_at:new Date().toISOString()
+  };
+
+  const { error } = await supabase.from("drive_links").upsert(patch,{ onConflict:"user_id" });
+  if(error){ toast("Erro ao salvar: "+error.message,true); return; }
+  toast("Links salvos.");
+  closeModal("modalLinks");
+}
+
+async function initApp(){
+  const { data:{ session } } = await supabase.auth.getSession();
+  if(!session){ showLogin(); return; }
+
+  const me=await getMyProfile();
+  showPortal();
+  if(!me){ setUserUI("Usuário","client"); el("menuCad").style.display="none"; showSection("dashboard"); return; }
+
+  setUserUI(me.name||"Usuário", me.role||"client");
+  el("menuCad").style.display=(me.role==="admin")?"flex":"none";
+  showSection("dashboard");
+}
+
+window.addEventListener("click",(e)=>{["modalNovoAcesso","modalLinks"].forEach(id=>{const m=el(id); if(m && e.target===m) m.classList.remove("show");});});
+document.addEventListener("DOMContentLoaded",()=>{ el("newRole").addEventListener("change",updateNewRoleFields); el("newCode").addEventListener("input",updateCodeStatus);});
+window.addEventListener("load",async()=>{ await initApp(); });
 </script>
-
 </body>
 </html>
