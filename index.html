@@ -405,30 +405,36 @@
       return data?.session?.access_token || null;
     }
 
-    async function callFn(fnName, body, method="POST") {
-      const token = await getAccessToken();
-      if (!token) throw new Error("Sem sessão. Faça login novamente.");
+    async function callFn(fnName, body, opts = {}) {
+  // opts: { method?: "POST"|"GET", requireAdminKey?: boolean }
+  const method = (opts.method || "POST").toUpperCase();
+  const requireAdminKey = opts.requireAdminKey !== false; // default true
 
-      const res = await fetch(`${FUNCTIONS_BASE}/${fnName}`, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "apikey": SUPABASE_ANON_KEY
-        },
-        body: body ? JSON.stringify(body) : undefined
-      });
+  const headers = { "Content-Type": "application/json" };
 
-      const txt = await res.text();
-      let json;
-      try { json = txt ? JSON.parse(txt) : null; } catch { json = { raw: txt }; }
+  // Para Edge Functions admin (list-accesses / update-links / create-account),
+  // enviamos SOMENTE o header x-admin-key (sem Authorization/apikey) para evitar CORS.
+  if (requireAdminKey) {
+    if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada no index.html");
+    headers["x-admin-key"] = ADMIN_CREATE_KEY;
+  }
 
-      if (!res.ok) {
-        const msg = (json && (json.error || json.message)) ? (json.error || json.message) : `Erro ${res.status}`;
-        throw new Error(msg);
-      }
-      return json;
-    }
+  const url = `${FUNCTIONS_BASE}/${fnName}`;
+
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: method === "GET" ? undefined : JSON.stringify(body ?? {}),
+  });
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = json?.error || json?.message || `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  return json;
+}
+
 
     function closeModal(id) {
       const m = el(id);
@@ -845,7 +851,7 @@
       try {
         const { data: profile, error } = await sb
           .from("profiles")
-          .select("role,nome,name")
+          .select("role,nome,codigo,projeto")
           .eq("id", session.user.id)
           .maybeSingle();
 
