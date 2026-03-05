@@ -4,7 +4,11 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>DOPPIO Hub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -17,98 +21,297 @@
       --texto-suave: #8A7D6B;
       --branco: #FDFBF7;
     }
-    body { font-family: 'Montserrat', sans-serif; background: var(--bege); color: var(--texto); min-height: 100vh; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bege);
+      color: var(--texto);
+      min-height: 100vh;
+    }
 
-    /* LOGIN */
-    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-    .login-box { background: var(--branco); padding: 3rem; border-radius: 16px; box-shadow: 0 8px 32px rgba(44,36,22,0.1); width: 100%; max-width: 400px; }
-    .login-logo { font-size: 2rem; font-weight: 300; letter-spacing: 0.3em; text-align: center; margin-bottom: 0.5rem; color: var(--verde); }
-    .login-subtitle { text-align: center; color: var(--texto-suave); font-size: 0.9rem; margin-bottom: 2rem; }
-    .form-group { margin-bottom: 1.5rem; }
-    .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--texto); }
-    .form-input { width: 100%; padding: 0.9rem; border: 1px solid var(--bege-dark); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; background: var(--bege); transition: all 0.2s; }
-    .form-input:focus { outline: none; border-color: var(--terracota); background: var(--branco); }
+    /* ===== LOGIN ===== */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .login-box {
+      background: var(--branco);
+      padding: 3rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(44,36,22,0.1);
+      width: 100%;
+      max-width: 420px;
+    }
+    .login-logo {
+      font-size: 2rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: var(--verde);
+    }
+    .login-subtitle {
+      text-align: center;
+      color: var(--texto-suave);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .error-message {
+      background: #FEE2E2;
+      color: #B91C1C;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--texto);
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.9rem;
+      border: 1px solid var(--bege-dark);
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      background: var(--bege);
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--terracota);
+      background: var(--branco);
+    }
     .password-wrapper { position: relative; }
-    .password-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--texto-suave); }
-    .btn-login { width: 100%; padding: 1rem; background: var(--terracota); color: white; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--texto-suave);
+    }
+    .btn-login {
+      width: 100%;
+      padding: 1rem;
+      background: var(--terracota);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
     .btn-login:hover { background: var(--terracota-dark); transform: translateY(-2px); }
-    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .error-message { background: #FEE2E2; color: #B91C1C; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .btn-login:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-    /* HUB */
-    .projects-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    @media (max-width: 900px) { .projects-grid { grid-template-columns: 1fr; } }
-    .project-card { background: var(--branco); border: 1px solid rgba(44,36,22,0.10); border-radius: 14px; padding: 16px; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; display: flex; align-items: stretch; justify-content: space-between; gap: 12px; min-height: 92px; }
-    .project-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(44,36,22,0.10); border-color: rgba(196,113,79,0.35); }
-    .project-card.disabled:hover { transform: none; box-shadow: none; border-color: rgba(44,36,22,0.10); }
-    .hub-left { display:flex; gap: 12px; align-items:flex-start; }
-    .hub-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bege-dark); display:flex; align-items:center; justify-content:center; font-size: 22px; flex: 0 0 44px; }
-    .hub-title { font-weight: 700; font-size: 1.0rem; }
-    .hub-sub { color: var(--texto-suave); font-size: 0.9rem; margin-top: 4px; line-height: 1.25; }
-    .hub-actions { display:flex; align-items:center; justify-content:flex-end; }
-    .hub-open { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; background: var(--terracota); color: #fff; white-space: nowrap; }
-    .hub-open:hover { background: var(--terracota-dark); }
-    .hub-open[aria-disabled="true"] { background: rgba(0,0,0,0.06); color: rgba(44,36,22,0.45); pointer-events: none; }
-
-    /* PORTAL */
+    /* ===== PORTAL ===== */
     .portal-container { display: none; min-height: 100vh; }
     .portal-container.active { display: flex; }
-    .sidebar { width: 260px; background: var(--verde); display: flex; flex-direction: column; padding: 2rem 0; position: fixed; left: 0; top: 0; bottom: 0; }
-    .sidebar-logo { font-size: 1.5rem; font-weight: 300; letter-spacing: 0.25em; color: var(--bege); padding: 0 1.5rem 2rem; border-bottom: 1px solid rgba(245,240,232,0.1); }
+
+    .sidebar {
+      width: 260px;
+      background: var(--verde);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 0;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+    .sidebar-logo {
+      font-size: 1.5rem;
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--bege);
+      padding: 0 1.5rem 2rem;
+      border-bottom: 1px solid rgba(245,240,232,0.1);
+    }
     .sidebar-menu { flex: 1; padding: 2rem 0; }
-    .menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.5rem; color: rgba(245,240,232,0.6); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.5rem;
+      color: rgba(245,240,232,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
     .menu-item:hover { background: rgba(245,240,232,0.05); color: var(--bege); }
-    .menu-item.active { background: rgba(245,240,232,0.08); color: var(--bege); border-left-color: var(--terracota); }
-    .sidebar-user { padding: 1.5rem; border-top: 1px solid rgba(245,240,232,0.1); }
-    .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: var(--bege); }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--terracota); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .menu-item.active {
+      background: rgba(245,240,232,0.08);
+      color: var(--bege);
+      border-left-color: var(--terracota);
+    }
+    .sidebar-user {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(245,240,232,0.1);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      color: var(--bege);
+    }
+    .user-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--terracota);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
     .user-name { font-size: 0.9rem; font-weight: 500; }
     .user-role { font-size: 0.75rem; color: rgba(245,240,232,0.5); }
-    .btn-logout { width: 100%; padding: 0.6rem; background: rgba(245,240,232,0.08); border: 1px solid rgba(245,240,232,0.15); border-radius: 6px; color: rgba(245,240,232,0.6); cursor: pointer; transition: all 0.2s; }
+    .btn-logout {
+      width: 100%;
+      padding: 0.6rem;
+      background: rgba(245,240,232,0.08);
+      border: 1px solid rgba(245,240,232,0.15);
+      border-radius: 6px;
+      color: rgba(245,240,232,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
     .btn-logout:hover { background: rgba(245,240,232,0.15); color: var(--bege); }
+
     .main-content { margin-left: 260px; padding: 2.5rem; min-height: 100vh; }
     .page-header { margin-bottom: 2rem; }
     .page-title { font-size: 2rem; font-weight: 500; color: var(--texto); margin-bottom: 0.25rem; }
     .page-subtitle { color: var(--texto-suave); font-size: 0.9rem; }
+
     .section { display: none; }
     .section.active { display: block; }
-    .card { background: var(--branco); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 24px rgba(44,36,22,0.08); margin-bottom: 1.5rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .card {
+      background: var(--branco);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 24px rgba(44,36,22,0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
     .stat-card { background: var(--branco); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 24px rgba(44,36,22,0.08); }
     .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--texto-suave); margin-bottom: 0.75rem; }
     .stat-value { font-size: 2rem; font-weight: 600; color: var(--texto); }
-    .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
-    .btn-primary { background: var(--terracota); color: white; }
+
+    .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--terracota); color: #fff; }
     .btn-primary:hover { background: var(--terracota-dark); }
     .btn-secondary { background: var(--bege-dark); color: var(--texto); }
+    .btn-secondary:hover { filter: brightness(0.98); }
+    .btn-block { flex: 1; }
+
     .loading { text-align: center; padding: 3rem; color: var(--texto-suave); }
-    .spinner { width: 40px; height: 40px; border: 3px solid var(--bege-dark); border-top-color: var(--terracota); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--bege-dark);
+      border-top-color: var(--terracota);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px; background: var(--verde); color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1000; }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      background: var(--verde);
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+      max-width: 420px;
+    }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { background: #B91C1C; }
 
-    /* MODAIS */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.show { display: flex; }
-    .modal { background: var(--branco); border-radius: 16px; padding: 2rem; width: 90%; max-width: 920px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .modal h2 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--texto); }
-    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
-    .btn-block { flex: 1; }
-    .modal-scroll { max-height: 85vh; overflow: auto; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
-    .grid-span-2 { grid-column: 1 / -1; }
-    @media (max-width: 768px) {
-      .sidebar { width: 200px; }
-      .main-content { margin-left: 200px; padding: 1.5rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
-      .grid-span-2 { grid-column: auto; }
+    /* Hub cards */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .projects-grid { grid-template-columns: 1fr; } }
+    .project-card {
+      background: var(--branco);
+      border: 1px solid rgba(44,36,22,0.10);
+      border-radius: 14px;
+      padding: 16px;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 92px;
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(44,36,22,0.10);
+      border-color: rgba(196,113,79,0.35);
+    }
+    .project-card.disabled:hover { transform: none; box-shadow: none; border-color: rgba(44,36,22,0.10); }
+    .hub-left { display:flex; gap: 12px; align-items:flex-start; }
+    .hub-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--bege-dark);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 22px;
+      flex: 0 0 44px;
+    }
+    .hub-title { font-weight: 700; font-size: 1.0rem; }
+    .hub-sub { color: var(--texto-suave); font-size: 0.9rem; margin-top: 4px; line-height: 1.25; }
+    .hub-actions { display:flex; align-items:center; justify-content:flex-end; }
+    .hub-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: var(--terracota);
+      color: #fff;
+      white-space: nowrap;
+    }
+    .hub-open:hover { background: var(--terracota-dark); }
+    .hub-open[aria-disabled="true"] {
+      background: rgba(0,0,0,0.06);
+      color: rgba(44,36,22,0.45);
+      pointer-events: none;
     }
 
+    /* Admin list cards */
     .files-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-    .file-item { display:flex; align-items:center; justify-content:space-between; gap: 16px; padding: 14px 14px; border-radius: 14px;
-      border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.92); }
+    .file-item {
+      display:flex; align-items:center; justify-content:space-between; gap: 16px;
+      padding: 14px 14px; border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.92);
+    }
     .file-info { min-width: 220px; }
     .file-name { font-weight: 700; font-size: 1.02rem; line-height: 1.25; margin-bottom: 4px; }
     .file-meta { color: var(--texto-suave); font-size: 0.9rem; }
@@ -118,26 +321,59 @@
       .file-actions { justify-content:flex-start; }
     }
 
-    .code-status { font-size: 0.8rem; margin-top: -0.5rem; color: var(--texto-suave); }
-    .code-status.ok { color: #0A8A3A; }
-    .code-status.warn { color: #B91C1C; }
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--branco);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 92%;
+      max-width: 920px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-height: 85vh;
+      overflow: auto;
+    }
+    .modal h2 { font-size: 1.5rem; margin-bottom: 1.25rem; color: var(--texto); }
+    .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+    .grid-span-2 { grid-column: 1 / -1; }
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .main-content { margin-left: 200px; padding: 1.5rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .grid-span-2 { grid-column: auto; }
+    }
   </style>
 </head>
+
 <body>
+  <!-- LOGIN -->
   <div class="login-container" id="loginPage">
     <div class="login-box">
       <div class="login-logo">DOPPIO</div>
       <div class="login-subtitle">Portal do Cliente</div>
+
       <div class="error-message" id="loginError"></div>
+
       <div class="form-group">
         <label class="form-label">Email</label>
         <input class="form-input" id="loginEmail" placeholder="seu@email.com" type="email"/>
       </div>
+
       <div class="form-group">
         <label class="form-label">Senha</label>
         <div class="password-wrapper">
           <input class="form-input" id="loginPassword" placeholder="••••••••" style="padding-right: 3rem;" type="password"/>
-          <button class="password-toggle" onclick="togglePassword()" type="button" title="Mostrar/ocultar senha">
+          <button class="password-toggle" onclick="togglePassword()" type="button" aria-label="Mostrar/ocultar senha">
             <svg fill="none" height="20" id="eyeIcon" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -145,15 +381,25 @@
           </button>
         </div>
       </div>
+
       <button class="btn-login" id="btnLogin" onclick="handleLogin()">Entrar</button>
+
+      <div style="margin-top:14px; font-size:12px; color: var(--texto-suave); line-height:1.35;">
+        <strong>Admin:</strong> para cadastrar clientes, entre com o email/senha do Admin (Supabase Auth).<br/>
+        <span style="display:block; margin-top:6px;">
+          Se o cadastro/lista do admin não carregar, falta configurar a <strong>ADMIN_CREATE_KEY</strong> no arquivo (veja no topo do JS).
+        </span>
+      </div>
     </div>
   </div>
 
+  <!-- PORTAL -->
   <div class="portal-container" id="portalPage">
     <aside class="sidebar">
       <div class="sidebar-logo">DOPPIO</div>
+
       <div class="sidebar-menu">
-        <div class="menu-item active" onclick="showSection('dashboard')">
+        <div class="menu-item active" id="menuDashboard" onclick="showSection('dashboard')">
           <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
             <rect height="7" width="7" x="3" y="3"></rect>
             <rect height="7" width="7" x="14" y="3"></rect>
@@ -162,7 +408,8 @@
           </svg>
           Dashboard
         </div>
-        <div class="menu-item" id="menuCadastro" onclick="showSection('clientes')">
+
+        <div class="menu-item" id="menuCadastro" onclick="showSection('cadastro')">
           <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
@@ -171,6 +418,7 @@
           Cadastro
         </div>
       </div>
+
       <div class="sidebar-user">
         <div class="user-info">
           <div class="user-avatar" id="userAvatar">?</div>
@@ -184,133 +432,180 @@
     </aside>
 
     <main class="main-content">
+      <!-- DASHBOARD -->
       <section class="section active" id="sectionDashboard">
         <div class="page-header">
-          <h1 class="page-title" id="dashboardTitle">Dashboard</h1>
-          <p class="page-subtitle">Bem-vindo ao portal</p>
+          <h1 class="page-title" id="dashboardTitle">Seu Portal</h1>
+          <p class="page-subtitle" id="dashboardSubtitle">Bem-vindo ao portal</p>
         </div>
-        <div id="dashboardContent"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="dashboardContent">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
       </section>
 
-      <section class="section" id="sectionClientes">
+      <!-- CADASTRO (ADMIN) -->
+      <section class="section" id="sectionCadastro">
         <div class="page-header">
           <h1 class="page-title">Cadastro</h1>
-          <p class="page-subtitle">Cadastrar clientes e configurar links do Drive</p>
+          <p class="page-subtitle">Criar acessos e configurar links do Drive</p>
         </div>
-        <div id="clientesContent"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="cadastroContent">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
       </section>
     </main>
   </div>
 
-  <div class="modal-overlay" id="modalNovoCliente">
-    <div class="modal modal-scroll">
+  <!-- MODAL NOVO ACESSO -->
+  <div class="modal-overlay" id="modalNovoAcesso">
+    <div class="modal">
       <h2>Novo Acesso</h2>
+
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label">Código</label>
-          <input class="form-input" id="novoClienteCodigo" placeholder="Ex: 2026-014" type="text"/>
-        </div>
-        <div class="form-group">
           <label class="form-label">Tipo de acesso</label>
-          <!-- FIX #3: values agora usam "cliente"/"fornecedor" para bater com a Edge Function -->
           <select class="form-input" id="novoTipo">
             <option value="cliente" selected>Cliente</option>
             <option value="fornecedor">Fornecedor</option>
           </select>
         </div>
-        <div class="form-group grid-span-2"><div id="codigoStatus" class="code-status"></div></div>
+
+        <div class="form-group">
+          <label class="form-label">Código</label>
+          <input class="form-input" id="novoCode" placeholder="Ex: 2026-001" type="text"/>
+        </div>
 
         <div class="form-group">
           <label class="form-label">Nome</label>
-          <input class="form-input" id="novoClienteCliente" placeholder="Ex: Silva" type="text"/>
+          <input class="form-input" id="novoName" placeholder="Ex: Silva" type="text"/>
         </div>
-        <div class="form-group grid-span-2">
+
+        <div class="form-group">
           <label class="form-label">Projeto</label>
-          <input class="form-input" id="novoClienteProjeto" placeholder="Ex: Residência Alphaville" type="text"/>
+          <input class="form-input" id="novoProject" placeholder="Ex: Residência Alphaville" type="text"/>
         </div>
-        <div class="form-group grid-span-2">
-          <label class="form-label">Endereço</label>
-          <input class="form-input" id="novoClienteEndereco" placeholder="(opcional)" type="text"/>
-        </div>
-        <div class="form-group" id="fgTelefone">
-          <label class="form-label">Telefone</label>
-          <input class="form-input" id="novoClienteTelefone" placeholder="(opcional)" type="text"/>
-        </div>
+
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input class="form-input" id="novoClienteEmail" placeholder="seu@email.com" type="email"/>
+          <input class="form-input" id="novoEmail" placeholder="cliente@email.com" type="email"/>
         </div>
+
         <div class="form-group">
           <label class="form-label">Senha</label>
-          <input class="form-input" id="novoClienteSenha" placeholder="Mínimo 6 caracteres" type="password"/>
+          <input class="form-input" id="novoPassword" placeholder="Mínimo 6 caracteres" type="password"/>
         </div>
-        <div class="form-group" id="fgNascimento">
-          <label class="form-label">Data de nascimento</label>
-          <input class="form-input" id="novoClienteNascimento" type="date"/>
+
+        <div class="form-group grid-span-2">
+          <div style="font-size:12px; color: var(--texto-suave); line-height:1.35;">
+            Este cadastro cria um usuário no <strong>Supabase Auth</strong> e grava o perfil no banco (<code>profiles</code>).
+          </div>
         </div>
       </div>
+
       <div class="modal-actions">
-        <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoCliente')">Cancelar</button>
-        <button class="btn btn-primary btn-block" id="btnCriarCliente" onclick="criarCliente()">Criar</button>
+        <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoAcesso')">Cancelar</button>
+        <button class="btn btn-primary btn-block" id="btnCriarAcesso" onclick="criarAcesso()">Criar</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalConfigHub">
-    <div class="modal modal-scroll">
+  <!-- MODAL CONFIG LINKS -->
+  <div class="modal-overlay" id="modalConfigLinks">
+    <div class="modal">
       <h2>Configurar Links</h2>
-      <input id="configClientId" type="hidden"/>
-      <input id="configClientType" type="hidden"/>
-      <p style="color: var(--texto-suave); margin-bottom: 1rem;">Projeto: <strong id="configClientTitle"></strong></p>
+      <input id="configProfileId" type="hidden"/>
+      <p style="color: var(--texto-suave); margin-bottom: 1rem;">
+        Projeto: <strong id="configTitle"></strong>
+      </p>
 
-      <div class="form-group" id="wrapLinkDocumentos">
+      <div class="form-group" id="wrapDocs">
         <label class="form-label">Link - Documentos (Drive)</label>
         <input class="form-input" id="linkDocumentos" placeholder="Cole o link da pasta no Google Drive" type="url"/>
       </div>
+
       <div class="form-group">
         <label class="form-label">Link - Arquivos de Projeto (Drive)</label>
         <input class="form-input" id="linkArquivos" placeholder="Cole o link da pasta no Google Drive" type="url"/>
       </div>
+
       <div class="form-group">
         <label class="form-label">Link - Renders (Drive)</label>
         <input class="form-input" id="linkRenders" placeholder="Cole o link da pasta no Google Drive" type="url"/>
       </div>
-      <div class="form-group" id="wrapLinkObra">
+
+      <div class="form-group" id="wrapObra">
         <label class="form-label">Link - Imagens de Obra (Drive)</label>
         <input class="form-input" id="linkObra" placeholder="Cole o link da pasta no Google Drive" type="url"/>
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-secondary btn-block" onclick="closeModal('modalConfigHub')">Cancelar</button>
-        <button class="btn btn-primary btn-block" onclick="salvarConfigHub()">Salvar</button>
+        <button class="btn btn-secondary btn-block" onclick="closeModal('modalConfigLinks')">Cancelar</button>
+        <button class="btn btn-primary btn-block" onclick="salvarLinks()">Salvar</button>
       </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
+    /************************************************************
+     * CONFIGURAÇÃO (VOCÊ SÓ PRECISA MEXER AQUI)
+     ************************************************************/
+
+    // ✅ Seu projeto
     const SUPABASE_URL = "https://haqwejvyniytgihndeob.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
-    // FIX #1: ADMIN_CREATE_KEY agora declarada
-    const ADMIN_CREATE_KEY = "doppio-admin-2026";
-    const FUNCTIONS_BASE = `${SUPABASE_URL}/functions/v1`;
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ⚠️ Coloque aqui a ADMIN_CREATE_KEY (Edge Functions > Secrets)
+    const ADMIN_CREATE_KEY = ""; // <- COLE AQUI
 
+    /************************************************************
+     * CLIENTE SUPABASE
+     ************************************************************/
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    /************************************************************
+     * HELPERS UI
+     ************************************************************/
     const el = (id) => document.getElementById(id);
 
     function showToast(msg, isError=false) {
       const t = el("toast");
-      if (!t) { alert(msg); return; }
       t.textContent = msg;
       t.classList.toggle("error", !!isError);
       t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2800);
+      setTimeout(() => t.classList.remove("show"), 3200);
     }
 
+    function escapeHTML(str) {
+      return (str||"").replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[s]));
+    }
+    function escapeAttr(str) { return (str||"").replace(/"/g, "&quot;"); }
+
+    function togglePassword() {
+      const input = el("loginPassword");
+      const icon = el("eyeIcon");
+      if (!input) return;
+      const isPass = input.type === "password";
+      input.type = isPass ? "text" : "password";
+      if (icon) icon.style.opacity = isPass ? "0.6" : "1";
+    }
+
+    function openModal(id) { const m = el(id); if (m) m.classList.add("show"); }
+    function closeModal(id) { const m = el(id); if (m) m.classList.remove("show"); }
+
+    window.addEventListener("click", (e) => {
+      ["modalNovoAcesso","modalConfigLinks"].forEach(id => {
+        const m = el(id);
+        if (m && e.target === m) m.classList.remove("show");
+      });
+    });
+
+    /************************************************************
+     * AUTH
+     ************************************************************/
     function showLogin() {
       el("loginPage").style.display = "flex";
       el("portalPage").classList.remove("active");
@@ -324,57 +619,15 @@
 
     function setUserUI({ name, role }) {
       el("userName").textContent = name || "Usuário";
-      // FIX #2: roles agora usam "fornecedor"/"cliente" consistentemente
       el("userRole").textContent = role === "admin" ? "Admin" : (role === "fornecedor" ? "Fornecedor" : "Cliente");
       el("userAvatar").textContent = (name || "?").trim().slice(0,1).toUpperCase();
-      el("menuCadastro").style.display = (role === "admin") ? "flex" : "none";
     }
-
-    function setActiveMenu(sectionName) {
-      document.querySelectorAll(".sidebar-menu .menu-item").forEach(mi => mi.classList.remove("active"));
-      const map = { dashboard: 0, clientes: 1 };
-      const idx = map[sectionName];
-      if (typeof idx === "number") {
-        const item = document.querySelectorAll(".sidebar-menu .menu-item")[idx];
-        if (item) item.classList.add("active");
-      }
-    }
-
-    function showSection(name) {
-      const role = window.__currentRole || "cliente";
-      if (role !== "admin" && name !== "dashboard") name = "dashboard";
-
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      if (name === "dashboard") el("sectionDashboard").classList.add("active");
-      if (name === "clientes") el("sectionClientes").classList.add("active");
-      setActiveMenu(name);
-
-      if (name === "dashboard") renderDashboard().catch(console.error);
-      if (name === "clientes") renderCadastro().catch(console.error);
-    }
-    window.showSection = showSection;
-
-    function togglePassword() {
-      const input = el("loginPassword");
-      const icon = el("eyeIcon");
-      if (!input) return;
-      const isPass = input.type === "password";
-      input.type = isPass ? "text" : "password";
-      if (icon) icon.style.opacity = isPass ? "0.6" : "1";
-    }
-    window.togglePassword = togglePassword;
-
-    function escapeHTML(str) {
-      return (str||"").replace(/[&<>"']/g, s => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-      }[s]));
-    }
-    function escapeAttr(str) { return (str||"").replace(/"/g, "&quot;"); }
 
     async function handleLogin() {
       const email = (el("loginEmail").value || "").trim().toLowerCase();
       const password = el("loginPassword").value || "";
       const errorBox = el("loginError");
+      const btn = el("btnLogin");
 
       if (!email || !password) {
         errorBox.textContent = "Preencha email e senha.";
@@ -382,11 +635,11 @@
         return;
       }
 
-      el("btnLogin").disabled = true;
+      btn.disabled = true;
       errorBox.style.display = "none";
 
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      el("btnLogin").disabled = false;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      btn.disabled = false;
 
       if (error) {
         errorBox.textContent = "Email ou senha inválidos.";
@@ -394,137 +647,102 @@
         return;
       }
 
-      await initApp();
-    }
-    window.handleLogin = handleLogin;
-
-    async function handleLogout() {
-      await sb.auth.signOut();
-      showLogin();
-    }
-    window.handleLogout = handleLogout;
-
-    // FIX #5: callFn padronizado — aceita string ou objeto como 3º argumento
-    async function callFn(fnName, body, opts = {}) {
-      const options = (typeof opts === "string") ? { method: opts } : opts;
-      const method = (options.method || "POST").toUpperCase();
-      const requireAdminKey = options.requireAdminKey !== false;
-
-      // FIX #6: headers apikey e Authorization necessários para o gateway do Supabase
-      const headers = {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      };
-
-      if (requireAdminKey) {
-        if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada no index.html");
-        headers["x-admin-key"] = ADMIN_CREATE_KEY;
-      }
-
-      const url = `${FUNCTIONS_BASE}/${fnName}`;
-
-      const res = await fetch(url, {
-        method,
-        headers,
-        body: method === "GET" ? undefined : JSON.stringify(body ?? {}),
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const msg = json?.error || json?.message || `HTTP ${res.status}`;
-        throw new Error(msg);
-      }
-      return json;
-    }
-
-    function closeModal(id) {
-      const m = el(id);
-      if (m) m.classList.remove("show");
-      if (id === "modalNovoCliente") {
-        const status = el("codigoStatus");
-        const btn = el("btnCriarCliente");
-        if (status) { status.textContent = ""; status.className = "code-status"; }
-        if (btn) btn.disabled = false;
-      }
-    }
-    window.closeModal = closeModal;
-
-    function openModal(id) {
-      const m = el(id);
-      if (m) m.classList.add("show");
-      if (id === "modalNovoCliente") setTimeout(updateCodigoStatus, 0);
-    }
-    window.openModal = openModal;
-
-    function updateNovoTipoFields() {
-      // FIX #3: comparando com "fornecedor" em vez de "supplier"
-      const t = (el("novoTipo")?.value || "cliente");
-      const fgTel = el("fgTelefone");
-      const fgNasc = el("fgNascimento");
-      if (t === "fornecedor") {
-        if (fgTel) fgTel.style.display = "none";
-        if (fgNasc) fgNasc.style.display = "none";
-      } else {
-        if (fgTel) fgTel.style.display = "";
-        if (fgNasc) fgNasc.style.display = "";
-      }
-    }
-
-    function openNovoCliente() {
-      ["novoTipo","novoClienteCodigo","novoClienteCliente","novoClienteProjeto","novoClienteEndereco","novoClienteTelefone","novoClienteEmail","novoClienteSenha","novoClienteNascimento"]
-        .forEach(id => { const x = el(id); if (x) x.value=""; });
-      updateNovoTipoFields();
-      openModal("modalNovoCliente");
-    }
-    window.openNovoCliente = openNovoCliente;
-
-    function normalizeCode(v) { return (v || "").trim().toLowerCase(); }
-
-    async function isCodeTaken(code) {
-      const key = normalizeCode(code);
-      if (!key) return false;
-      // FIX #2: list-accesses retorna tudo em "items", separamos por role
-      const list = await callFn("list-accesses", null, { method: "POST" });
-      const items = list?.items || [];
-      const all = Array.isArray(items) ? items : [];
-      return all.some(x => normalizeCode(x.codigo) === key);
-    }
-
-    async function updateCodigoStatus() {
-      const input = el("novoClienteCodigo");
-      const status = el("codigoStatus");
-      const btn = el("btnCriarCliente");
-      if (!input || !status || !btn) return;
-
-      const v = input.value || "";
-      const key = normalizeCode(v);
-
-      if (!key) {
-        status.textContent = "⚠️ Código é obrigatório";
-        status.className = "code-status warn";
-        btn.disabled = true;
+      if (!data?.user) {
+        errorBox.textContent = "Falha ao autenticar.";
+        errorBox.style.display = "block";
         return;
       }
 
-      try {
-        const taken = await isCodeTaken(v);
-        if (taken) {
-          status.textContent = "⚠️ Já existe um acesso com esse código";
-          status.className = "code-status warn";
-          btn.disabled = true;
-          return;
-        }
-        status.textContent = "✅ Código disponível";
-        status.className = "code-status ok";
-        btn.disabled = false;
-      } catch (e) {
-        status.textContent = "ℹ️ Não consegui validar o código agora (ok para continuar).";
-        status.className = "code-status";
-        btn.disabled = false;
-      }
+      await initApp();
     }
 
+    async function handleLogout() {
+      await supabase.auth.signOut();
+      showLogin();
+    }
+
+    /************************************************************
+     * SECTIONS
+     ************************************************************/
+    function setActiveMenu(name) {
+      el("menuDashboard").classList.toggle("active", name === "dashboard");
+      el("menuCadastro").classList.toggle("active", name === "cadastro");
+    }
+
+    function showSection(name) {
+      el("sectionDashboard").classList.toggle("active", name === "dashboard");
+      el("sectionCadastro").classList.toggle("active", name === "cadastro");
+      setActiveMenu(name);
+
+      if (name === "dashboard") renderDashboard();
+      if (name === "cadastro") renderCadastro();
+    }
+
+    /************************************************************
+     * EDGE FUNCTIONS (ADMIN)
+     ************************************************************/
+    function requireAdminKeyOrThrow() {
+      if (!ADMIN_CREATE_KEY) {
+        throw new Error("ADMIN_CREATE_KEY não configurada no index.html.");
+      }
+      return ADMIN_CREATE_KEY;
+    }
+
+    async function callFn(fnName, payload) {
+      const url = `${SUPABASE_URL}/functions/v1/${fnName}`;
+      const key = requireAdminKeyOrThrow();
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": key,
+        },
+        body: JSON.stringify(payload || {}),
+      });
+
+      const txt = await res.text();
+      let data;
+      try { data = JSON.parse(txt); } catch(e) { data = { raw: txt }; }
+
+      if (!res.ok) {
+        const msg = data?.error || `Erro ${res.status}`;
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    /************************************************************
+     * DATA
+     ************************************************************/
+    async function fetchMyProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, role, codigo, nome, projeto")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+
+    async function fetchMyLinks(profileId) {
+      const { data, error } = await supabase
+        .from("drive_links")
+        .select("profile_id, documentos, arquivos, renders, obra")
+        .eq("profile_id", profileId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data || { profile_id: profileId, documentos: null, arquivos: null, renders: null, obra: null };
+    }
+
+    /************************************************************
+     * RENDER DASHBOARD
+     ************************************************************/
     function hubButton(label, url) {
       const disabled = !url;
       const safeUrl = url ? escapeAttr(url) : "#";
@@ -533,6 +751,7 @@
       const hasIcon = first && !/^[A-Za-z0-9]/.test(first);
       const icon = hasIcon ? first : "🔗";
       const title = hasIcon ? parts.slice(1).join(" ") : (label || "");
+
       return `
         <div class="project-card ${disabled ? "disabled" : ""}">
           <div class="hub-left">
@@ -555,322 +774,321 @@
       const container = el("dashboardContent");
       container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
 
-      const role = window.__currentRole || "cliente";
+      try {
+        const profile = await fetchMyProfile();
+        if (!profile) {
+          container.innerHTML = `<div class="card"><p>Você não está logado.</p></div>`;
+          return;
+        }
 
-      if (role === "admin") {
-        const resp = await callFn("list-accesses", null, { method: "POST" });
-        // FIX #2: separar clientes e fornecedores a partir do campo "role" em "items"
-        const items = Array.isArray(resp?.items) ? resp.items : [];
-        const cArr = items.filter(x => x.role === "cliente");
-        const sArr = items.filter(x => x.role === "fornecedor");
+        const role = (profile.role || "").toLowerCase();
+        const isAdmin = role === "admin";
 
-        container.innerHTML = "";
-        const header = document.createElement("div");
-        header.className = "stats-grid";
-        header.innerHTML = `
-          <div class="stat-card"><div class="stat-value">${cArr.length}</div><div class="stat-label">clientes</div></div>
-          <div class="stat-card"><div class="stat-value">${sArr.length}</div><div class="stat-label">fornecedores</div></div>
-          <div class="stat-card"><div class="stat-value">${(cArr.length+sArr.length) ? "✅" : "—"}</div><div class="stat-label">hub de links</div></div>
+        el("dashboardTitle").textContent = isAdmin ? "Dashboard" : "Seu Portal";
+        el("dashboardSubtitle").textContent = isAdmin ? "Gerencie acessos e links do Drive" : "Acesso rápido às pastas do Drive";
+
+        if (isAdmin) {
+          const listData = await callFn("list-accesses", {});
+          const items = listData?.items || [];
+          const clientes = items.filter(x => (x.role||"").toLowerCase() === "cliente");
+          const fornecedores = items.filter(x => (x.role||"").toLowerCase() === "fornecedor");
+
+          const header = `
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">${clientes.length}</div>
+                <div class="stat-label">clientes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${fornecedores.length}</div>
+                <div class="stat-label">fornecedores</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">Drive</div>
+                <div class="stat-label">portal como hub</div>
+              </div>
+            </div>
+          `;
+
+          const card = `
+            <div class="card">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                <div>
+                  <h3 style="margin-bottom:0.35rem;">Acessos cadastrados</h3>
+                  <p style="color:var(--texto-suave); margin:0;">Configure os links do Drive por cliente/fornecedor.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openNovoAcesso()">+ Novo Acesso</button>
+              </div>
+              <div id="adminList" style="margin-top:1.25rem;"></div>
+            </div>
+          `;
+
+          container.innerHTML = header + card;
+
+          const listEl = document.getElementById("adminList");
+          if (!items.length) {
+            listEl.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado ainda.</p>`;
+            return;
+          }
+
+          const rows = items
+            .slice()
+            .sort((a,b)=> (String(b.code||"")).localeCompare(String(a.code||"")))
+            .map(p => {
+              const title = `${p.codigo || ""} – ${p.nome || ""}`.trim();
+              const proj = p.projeto ? ` • ${p.projeto}` : "";
+              const okLinks = p.links && (
+                (String(p.role||"").toLowerCase() === "fornecedor"
+                  ? (p.links.arquivos && p.links.renders)
+                  : (p.links.documentos && p.links.arquivos && p.links.renders && p.links.obra)
+                )
+              );
+
+              return `
+                <div class="file-item">
+                  <div class="file-info">
+                    <div class="file-name">${escapeHTML(title)}${proj ? `<span style="font-weight:600; color:var(--texto-suave); font-size:0.95rem;">${escapeHTML(proj)}</span>` : ""}</div>
+                    <div class="file-meta">${escapeHTML(String(p.role||"").toLowerCase()==="fornecedor" ? "Fornecedor" : "Cliente")} • ${okLinks ? "Links ok" : "Pendente links"}</div>
+                  </div>
+                  <div class="file-actions">
+                    <button class="btn btn-secondary" onclick="openConfigLinks('${escapeAttr(p.id)}','${escapeAttr(p.role)}','${escapeAttr(p.codigo||"")}','${escapeAttr(p.nome||"")}','${escapeAttr(p.projeto||"")}', ${encodeURIComponent(JSON.stringify(p.links||{}))})">Links</button>
+                  </div>
+                </div>
+              `;
+            })
+            .join("");
+
+          listEl.innerHTML = `<div class="files-list">${rows}</div>`;
+          return;
+        }
+
+        const links = await fetchMyLinks(profile.id);
+        const title = `${profile.codigo || ""} – ${profile.nome || ""} – ${profile.projeto || ""}`.replace(/\s+–\s+–/g," – ");
+
+        const isSupplier = role === "fornecedor";
+        const grid = isSupplier
+          ? (hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders))
+          : (hubButton("📄 Documentos", links?.documentos) + hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders) + hubButton("🏗️ Imagens de Obra", links?.obra));
+
+        container.innerHTML = `
+          <div class="card">
+            <h2 style="margin-bottom:0.5rem;">${escapeHTML(title)}</h2>
+            <p style="color:var(--texto-suave); margin-top:0; margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
+            <div class="projects-grid">${grid}</div>
+          </div>
         `;
-        container.appendChild(header);
+      } catch (e) {
+        console.error(e);
+        container.innerHTML = `
+          <div class="card">
+            <h3 style="margin:0 0 10px 0;">Erro ao carregar</h3>
+            <p style="color:var(--texto-suave); margin:0 0 10px 0;">${escapeHTML(String(e?.message || e))}</p>
+            <p style="color:var(--texto-suave); margin:0;">
+              Se for Admin: confira se você colou a <strong>ADMIN_CREATE_KEY</strong> no topo do JS.
+            </p>
+          </div>
+        `;
+        showToast("Erro ao carregar dashboard. Veja o console.", true);
+      }
+    }
+
+    /************************************************************
+     * CADASTRO (ADMIN)
+     ************************************************************/
+    async function renderCadastro() {
+      const container = el("cadastroContent");
+      container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
+
+      try {
+        const profile = await fetchMyProfile();
+        const role = (profile?.role || "").toLowerCase();
+        if (role !== "admin") {
+          showSection("dashboard");
+          return;
+        }
+
+        const listData = await callFn("list-accesses", {});
+        const items = listData?.items || [];
 
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
           <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
             <div>
-              <h3 style="margin-bottom:0.35rem;">Acessos cadastrados</h3>
-              <p style="color:var(--texto-suave); margin:0;">Crie novos acessos e configure links do Drive.</p>
+              <h3 style="margin-bottom:0.35rem;">Cadastro de acessos</h3>
+              <p style="color:var(--texto-suave); margin:0;">Crie acessos (cliente/fornecedor) e configure links do Google Drive.</p>
             </div>
-            <button class="btn btn-primary" onclick="openNovoCliente()">+ Novo Acesso</button>
+            <button class="btn btn-primary" onclick="openNovoAcesso()">+ Novo Acesso</button>
           </div>
-          <div id="adminClientsList" style="margin-top:1.25rem;"></div>
+          <div id="cadList" style="margin-top:1.25rem;"></div>
         `;
+        container.innerHTML = "";
         container.appendChild(card);
 
-        const list = card.querySelector("#adminClientsList");
-        const all = items.sort((a,b) => (b.codigo||"").localeCompare(a.codigo||""));
-
-        if (!all.length) {
-          list.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado ainda.</p>`;
+        const listEl = card.querySelector("#cadList");
+        if (!items.length) {
+          listEl.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado.</p>`;
           return;
         }
 
-        const table = document.createElement("div");
-        table.className = "files-list";
-        all.forEach(a => {
-          const code = a.codigo || "";
-          const nome = a.nome || "";
-          const projeto = a.projeto || "";
-          const title = [code, nome, projeto].filter(Boolean).join(" – ");
-          const row = document.createElement("div");
-          row.className = "file-item";
-          row.innerHTML = `
-            <div class="file-info">
-              <div class="file-name">${escapeHTML(title)}</div>
-              <div class="file-meta">${escapeHTML(a.role === "fornecedor" ? "Fornecedor" : "Cliente")}</div>
-            </div>
-            <div class="file-actions">
-              <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.role)}')">Links</button>
-            </div>
-          `;
-          table.appendChild(row);
-        });
-        list.appendChild(table);
-        return;
-      }
+        const rows = items
+          .slice()
+          .sort((a,b)=> (String(b.code||"")).localeCompare(String(a.code||"")))
+          .map(p => {
+            const title = `${p.codigo || ""} – ${p.nome || ""} – ${p.projeto || ""}`.replace(/\s+–\s+–/g," – ");
+            const tipo = (String(p.role||"").toLowerCase() === "fornecedor") ? "Fornecedor" : ((String(p.role||"").toLowerCase() === "cliente") ? "Cliente" : p.role);
+            return `
+              <div class="file-item">
+                <div class="file-info">
+                  <div class="file-name">${escapeHTML(title)}</div>
+                  <div class="file-meta">${escapeHTML(tipo)}</div>
+                </div>
+                <div class="file-actions">
+                  <button class="btn btn-secondary" onclick="openConfigLinks('${escapeAttr(p.id)}','${escapeAttr(p.role)}','${escapeAttr(p.codigo||"")}','${escapeAttr(p.nome||"")}','${escapeAttr(p.projeto||"")}', ${encodeURIComponent(JSON.stringify(p.links||{}))})">Links</button>
+                </div>
+              </div>
+            `;
+          }).join("");
 
-      // Cliente ou fornecedor logado
-      const resp = await callFn("list-accesses", null, { method: "POST" });
-      const items = Array.isArray(resp?.items) ? resp.items : [];
-
-      const { data: me } = await sb.auth.getUser();
-      const uid = me?.user?.id;
-
-      const access = items.find(x => x.id === uid) || null;
-
-      if (!access) {
-        container.innerHTML = `<div class="card"><p>Nenhum acesso encontrado para este usuário.</p></div>`;
-        return;
-      }
-
-      const code = access.codigo || "";
-      const nome = access.nome || "";
-      const projeto = access.projeto || "";
-      const title = [code, nome, projeto].filter(Boolean).join(" – ");
-
-      const links = access.links || {};
-      const documentos = links.documentos || "";
-      const arquivos = links.arquivos || "";
-      const renders = links.renders || "";
-      const obra = links.obra || "";
-
-      container.innerHTML = `
-        <div class="card">
-          <h2 style="margin-bottom:0.5rem;">${escapeHTML(title)}</h2>
-          <p style="color:var(--texto-suave); margin-top:0; margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
-          <div class="projects-grid" style="margin-top:0.5rem;">
-            ${role === "fornecedor"
-              ? (hubButton("🧩 Arquivos de Projeto", arquivos) + hubButton("🖼️ Renders", renders))
-              : (hubButton("📄 Documentos", documentos) + hubButton("🧩 Arquivos de Projeto", arquivos) + hubButton("🖼️ Renders", renders) + hubButton("🏗️ Imagens de Obra", obra))}
-          </div>
-        </div>
-      `;
-    }
-
-    async function renderCadastro() {
-      const role = window.__currentRole || "cliente";
-      if (role !== "admin") { showSection("dashboard"); return; }
-
-      const container = el("clientesContent");
-      container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
-
-      const resp = await callFn("list-accesses", null, { method: "POST" });
-      // FIX #2: separar por role dentro de items
-      const items = Array.isArray(resp?.items) ? resp.items : [];
-
-      container.innerHTML = "";
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-          <div>
-            <h3 style="margin-bottom:0.35rem;">Cadastro de acessos</h3>
-            <p style="color:var(--texto-suave); margin:0;">Crie acessos (cliente/fornecedor) e configure links do Google Drive.</p>
-          </div>
-          <button class="btn btn-primary" onclick="openNovoCliente()">+ Novo Acesso</button>
-        </div>
-        <div id="cadList" style="margin-top:1.25rem;"></div>
-      `;
-      container.appendChild(card);
-
-      const list = card.querySelector("#cadList");
-      const all = items.sort((a,b) => (b.codigo||"").localeCompare(a.codigo||""));
-
-      if (!all.length) {
-        list.innerHTML = `<p style="color:var(--texto-suave); margin:0.75rem 0 0;">Nenhum acesso cadastrado.</p>`;
-        return;
-      }
-
-      const table = document.createElement("div");
-      table.className = "files-list";
-      all.forEach(a => {
-        const code = a.codigo || "";
-        const nome = a.nome || "";
-        const projeto = a.projeto || "";
-        const titleLine = [code, nome, projeto].filter(Boolean).join(" – ");
-        const row = document.createElement("div");
-        row.className = "file-item";
-        row.innerHTML = `
-          <div class="file-info">
-            <div class="file-name">${escapeHTML(titleLine)}</div>
-            <div class="file-meta">${escapeHTML(a.role === "fornecedor" ? "Fornecedor" : "Cliente")}</div>
-          </div>
-          <div class="file-actions">
-            <button class="btn btn-secondary" onclick="openConfigHub('${escapeAttr(a.id)}','${escapeAttr(a.role)}')">Links</button>
+        listEl.innerHTML = `<div class="files-list">${rows}</div>`;
+      } catch (e) {
+        console.error(e);
+        container.innerHTML = `
+          <div class="card">
+            <h3 style="margin:0 0 10px 0;">Erro no cadastro</h3>
+            <p style="color:var(--texto-suave); margin:0;">${escapeHTML(String(e?.message || e))}</p>
           </div>
         `;
-        table.appendChild(row);
-      });
-      list.appendChild(table);
+        showToast("Erro ao carregar cadastro.", true);
+      }
     }
 
-    async function criarCliente() {
-      const code = (el("novoClienteCodigo").value || "").trim();
-      const cliente = (el("novoClienteCliente").value || "").trim();
-      const projeto = (el("novoClienteProjeto").value || "").trim();
-      const endereco = (el("novoClienteEndereco").value || "").trim();
-      const telefone = (el("novoClienteTelefone").value || "").trim();
-      const email = (el("novoClienteEmail").value || "").trim().toLowerCase();
-      const senha = (el("novoClienteSenha").value || "");
-      const nascimento = (el("novoClienteNascimento").value || "").trim();
-      // FIX #3: tipo já vem como "cliente" ou "fornecedor" direto do select
-      const tipo = (el("novoTipo")?.value || "cliente").trim();
+    function openNovoAcesso() {
+      el("novoTipo").value = "cliente";
+      el("novoCode").value = "";
+      el("novoName").value = "";
+      el("novoProject").value = "";
+      el("novoEmail").value = "";
+      el("novoPassword").value = "";
+      openModal("modalNovoAcesso");
+    }
 
-      if (!code || !cliente || !projeto || !email || !senha) {
-        showToast("Preencha: código, cliente, projeto, email e senha.", true);
-        return;
-      }
-      if (senha.length < 6) {
-        showToast("Senha muito curta (mínimo 6 caracteres).", true);
-        return;
-      }
-
-      el("btnCriarCliente").disabled = true;
+    async function criarAcesso() {
+      const btn = el("btnCriarAcesso");
+      btn.disabled = true;
 
       try {
-        await callFn("create-account", {
-          email,
-          password: senha,
-          role: tipo,
-          codigo: code,
-          nome: cliente,
-          projeto,
-          endereco: endereco || null,
-          telefone: telefone || null,
-          nascimento: nascimento || null
-        }, { method: "POST" });
+        const role = (el("novoTipo").value || "").trim().toLowerCase();
+        const code = (el("novoCode").value || "").trim();
+        const name = (el("novoName").value || "").trim();
+        const project = (el("novoProject").value || "").trim();
+        const email = (el("novoEmail").value || "").trim().toLowerCase();
+        const password = el("novoPassword").value || "";
 
-        closeModal("modalNovoCliente");
-        showToast("Acesso criado. Agora configure os links do Drive.");
-        await renderDashboard();
-        await renderCadastro();
-      } catch (e) {
-        showToast(e.message || "Erro ao criar acesso", true);
-      } finally {
-        el("btnCriarCliente").disabled = false;
-      }
-    }
-    window.criarCliente = criarCliente;
-
-    async function openConfigHub(accessId, roleType) {
-      const resp = await callFn("list-accesses", null, { method: "POST" });
-      const items = Array.isArray(resp?.items) ? resp.items : [];
-      const a = items.find(x => x.id === accessId) || null;
-      if (!a) { showToast("Acesso não encontrado.", true); return; }
-
-      el("configClientId").value = a.id;
-      el("configClientType").value = roleType;
-
-      const code = a.codigo || "";
-      const nome = a.nome || "";
-      const projeto = a.projeto || "";
-      el("configClientTitle").textContent = [code, nome, projeto].filter(Boolean).join(" – ");
-
-      const wrapDocs = el("wrapLinkDocumentos");
-      const wrapObra = el("wrapLinkObra");
-      if (roleType === "fornecedor") {
-        if (wrapDocs) wrapDocs.style.display = "none";
-        if (wrapObra) wrapObra.style.display = "none";
-      } else {
-        if (wrapDocs) wrapDocs.style.display = "";
-        if (wrapObra) wrapObra.style.display = "";
-      }
-
-      const links = a.links || {};
-      el("linkDocumentos").value = links.documentos || "";
-      el("linkArquivos").value = links.arquivos || "";
-      el("linkRenders").value = links.renders || "";
-      el("linkObra").value = links.obra || "";
-
-      openModal("modalConfigHub");
-    }
-    window.openConfigHub = openConfigHub;
-
-    async function salvarConfigHub() {
-      const accessId = el("configClientId").value;
-      const roleType = el("configClientType").value || "cliente";
-
-      // FIX #4: payload corrigido — usa "profile_id" e campos soltos (sem objeto "links")
-      let payload = {
-        profile_id: accessId,
-        arquivos: (el("linkArquivos").value || "").trim() || null,
-        renders: (el("linkRenders").value || "").trim() || null,
-      };
-
-      if (roleType !== "fornecedor") {
-        payload.documentos = (el("linkDocumentos").value || "").trim() || null;
-        payload.obra = (el("linkObra").value || "").trim() || null;
-      }
-
-      try {
-        await callFn("update-links", payload, { method: "POST" });
-        closeModal("modalConfigHub");
-        showToast("Configuração salva.");
-        await renderDashboard();
-        await renderCadastro();
-      } catch (e) {
-        showToast(e.message || "Erro ao salvar links", true);
-      }
-    }
-    window.salvarConfigHub = salvarConfigHub;
-
-    async function initApp() {
-      const { data } = await sb.auth.getSession();
-      const session = data?.session;
-      if (!session) { showLogin(); return; }
-
-      let role = "cliente";
-      let nome = session.user.email || "Usuário";
-
-      try {
-        const { data: profile, error } = await sb
-          .from("profiles")
-          .select("role,nome,codigo,projeto")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        if (!error && profile) {
-          role = profile.role || role;
-          nome = profile.nome || nome;
+        if (!role || !code || !name || !project || !email || !password) {
+          showToast("Preencha todos os campos.", true);
+          return;
         }
-      } catch (e) { console.warn(e); }
+        if (password.length < 6) {
+          showToast("Senha muito curta (mín. 6).", true);
+          return;
+        }
 
-      window.__currentRole = role;
+        await callFn("create-account", { email, password, role, code, name, project });
 
-      showPortal();
-      el("dashboardTitle").textContent = (role === "admin") ? "Dashboard" : "Seu Portal";
-      setUserUI({ name: nome, role });
+        closeModal("modalNovoAcesso");
+        showToast("Acesso criado. Agora configure os links.");
+        await renderDashboard();
+        await renderCadastro();
 
-      showSection("dashboard");
+      } catch (e) {
+        console.error(e);
+        showToast(String(e?.message || e), true);
+      } finally {
+        btn.disabled = false;
+      }
     }
 
-    window.addEventListener("click", (e) => {
-      ["modalNovoCliente","modalConfigHub"].forEach(id => {
-        const m = el(id);
-        if (m && e.target === m) m.classList.remove("show");
-      });
+    /************************************************************
+     * LINKS (ADMIN)
+     ************************************************************/
+    function openConfigLinks(profileId, role, code, name, project, linksEncoded) {
+      let links = {};
+      try { links = JSON.parse(decodeURIComponent(linksEncoded || "")); } catch(e) {}
+
+      el("configProfileId").value = profileId;
+      el("configTitle").textContent = `${code || ""} – ${name || ""} – ${project || ""}`.replace(/\s+–\s+–/g," – ");
+
+      const isSupplier = (String(role||"").toLowerCase() === "fornecedor");
+
+      el("wrapDocs").style.display = isSupplier ? "none" : "";
+      el("wrapObra").style.display = isSupplier ? "none" : "";
+
+      el("linkDocumentos").value = links?.documentos || "";
+      el("linkArquivos").value = links?.arquivos || "";
+      el("linkRenders").value = links?.renders || "";
+      el("linkObra").value = links?.obra || "";
+
+      openModal("modalConfigLinks");
+    }
+
+    async function salvarLinks() {
+      try {
+        const profile_id = el("configProfileId").value;
+        const documentos = (el("linkDocumentos").value || "").trim();
+        const arquivos = (el("linkArquivos").value || "").trim();
+        const renders = (el("linkRenders").value || "").trim();
+        const obra = (el("linkObra").value || "").trim();
+
+        await callFn("update-links", { profile_id, documentos, arquivos, renders, obra });
+
+        closeModal("modalConfigLinks");
+        showToast("Links salvos.");
+        await renderDashboard();
+        await renderCadastro();
+      } catch (e) {
+        console.error(e);
+        showToast(String(e?.message || e), true);
+      }
+    }
+
+    /************************************************************
+     * INIT
+     ************************************************************/
+    async function initApp() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        showLogin();
+        return;
+      }
+
+      try {
+        const profile = await fetchMyProfile();
+        const role = (profile?.role || "cliente").toLowerCase();
+
+        showPortal();
+        setUserUI({ name: profile?.name || session.user.email, role });
+
+        el("menuCadastro").style.display = (role === "admin") ? "flex" : "none";
+
+        showSection("dashboard");
+      } catch (e) {
+        console.error(e);
+        showToast("Falha ao carregar perfil (verifique colunas/policies).", true);
+        showPortal();
+        setUserUI({ name: session.user.email, role: "cliente" });
+        el("menuCadastro").style.display = "none";
+        showSection("dashboard");
+      }
+    }
+
+    supabase.auth.onAuthStateChange((_event, _session) => {
+      initApp();
     });
 
     window.addEventListener("load", () => {
-      const codigo = el("novoClienteCodigo");
-      if (codigo) codigo.addEventListener("input", () => updateCodigoStatus().catch(()=>{}));
-      const nt = el("novoTipo");
-      if (nt) nt.addEventListener("change", updateNovoTipoFields);
-      initApp().catch(err => { console.error(err); showLogin(); });
+      initApp();
     });
-
-    sb.auth.onAuthStateChange(() => { initApp().catch(()=>{}); });
   </script>
 </body>
 </html>
