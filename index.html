@@ -410,7 +410,12 @@
       const method = (options.method || "POST").toUpperCase();
       const requireAdminKey = options.requireAdminKey !== false;
 
-      const headers = { "Content-Type": "application/json" };
+      // FIX #6: headers apikey e Authorization necessários para o gateway do Supabase
+      const headers = {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      };
 
       if (requireAdminKey) {
         if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada no index.html");
