@@ -8,14 +8,9 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --verde: #4A5E4A;
-      --terracota: #C4714F;
-      --terracota-dark: #A85A3A;
-      --bege: #F5F0E8;
-      --bege-dark: #EDE6D6;
-      --texto: #2C2416;
-      --texto-suave: #8A7D6B;
-      --branco: #FDFBF7;
+      --verde: #4A5E4A; --terracota: #C4714F; --terracota-dark: #A85A3A;
+      --bege: #F5F0E8; --bege-dark: #EDE6D6; --texto: #2C2416;
+      --texto-suave: #8A7D6B; --branco: #FDFBF7;
     }
     body { font-family: 'Montserrat', sans-serif; background: var(--bege); color: var(--texto); min-height: 100vh; }
     .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
@@ -27,6 +22,7 @@
     .form-label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--texto); }
     .form-input { width: 100%; padding: 0.9rem; border: 1px solid var(--bege-dark); border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; background: var(--bege); transition: all 0.2s; }
     .form-input:focus { outline: none; border-color: var(--terracota); background: var(--branco); }
+    select.form-input { cursor: pointer; }
     .password-wrapper { position: relative; }
     .password-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--texto-suave); }
     .btn-login { width: 100%; padding: 1rem; background: var(--terracota); color: white; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
@@ -45,7 +41,7 @@
     .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--terracota); display: flex; align-items: center; justify-content: center; font-weight: 600; }
     .user-name { font-size: 0.9rem; font-weight: 500; }
     .user-role { font-size: 0.75rem; color: rgba(245,240,232,0.5); }
-    .btn-logout { width: 100%; padding: 0.6rem; background: rgba(245,240,232,0.08); border: 1px solid rgba(245,240,232,0.15); border-radius: 6px; color: rgba(245,240,232,0.6); cursor: pointer; transition: all 0.2s; }
+    .btn-logout { width: 100%; padding: 0.6rem; background: rgba(245,240,232,0.08); border: 1px solid rgba(245,240,232,0.15); border-radius: 6px; color: rgba(245,240,232,0.6); cursor: pointer; transition: all 0.2s; font-family: 'Montserrat', sans-serif; }
     .btn-logout:hover { background: rgba(245,240,232,0.15); color: var(--bege); }
     .main-content { margin-left: 260px; padding: 2.5rem; min-height: 100vh; }
     .page-header { margin-bottom: 2rem; }
@@ -58,676 +54,677 @@
     .stat-card { background: var(--branco); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 24px rgba(44,36,22,0.08); }
     .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--texto-suave); margin-bottom: 0.75rem; }
     .stat-value { font-size: 2rem; font-weight: 600; color: var(--texto); }
-    .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn { padding: 0.65rem 1.25rem; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 0.85rem; }
     .btn-primary { background: var(--terracota); color: #fff; }
     .btn-primary:hover { background: var(--terracota-dark); }
     .btn-secondary { background: var(--bege-dark); color: var(--texto); }
+    .btn-secondary:hover { filter: brightness(0.95); }
+    .btn-danger { background: #FEE2E2; color: #B91C1C; }
+    .btn-danger:hover { background: #FECACA; }
     .btn-block { flex: 1; }
     .loading { text-align: center; padding: 3rem; color: var(--texto-suave); }
     .spinner { width: 40px; height: 40px; border: 3px solid var(--bege-dark); border-top-color: var(--terracota); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px; background: var(--verde); color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 1000; max-width: 420px; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px; background: var(--verde); color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 2000; max-width: 420px; font-family: 'Montserrat', sans-serif; }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { background: #B91C1C; }
     .projects-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     @media (max-width: 900px) { .projects-grid { grid-template-columns: 1fr; } }
-    .project-card { background: var(--branco); border: 1px solid rgba(44,36,22,0.10); border-radius: 14px; padding: 16px; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; display: flex; align-items: stretch; justify-content: space-between; gap: 12px; min-height: 92px; }
+    .project-card { background: var(--branco); border: 1px solid rgba(44,36,22,0.10); border-radius: 14px; padding: 16px; transition: transform .15s, box-shadow .15s, border-color .15s; display: flex; align-items: stretch; justify-content: space-between; gap: 12px; min-height: 92px; }
     .project-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(44,36,22,0.10); border-color: rgba(196,113,79,0.35); }
     .project-card.disabled:hover { transform: none; box-shadow: none; border-color: rgba(44,36,22,0.10); }
     .hub-left { display:flex; gap: 12px; align-items:flex-start; }
     .hub-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bege-dark); display:flex; align-items:center; justify-content:center; font-size: 22px; flex: 0 0 44px; }
     .hub-title { font-weight: 700; font-size: 1.0rem; }
     .hub-sub { color: var(--texto-suave); font-size: 0.9rem; margin-top: 4px; line-height: 1.25; }
-    .hub-actions { display:flex; align-items:center; justify-content:flex-end; }
-    .hub-open { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; background: var(--terracota); color: #fff; white-space: nowrap; }
+    .hub-actions { display:flex; align-items:center; }
+    .hub-open { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; background: var(--terracota); color: #fff; white-space: nowrap; font-family: 'Montserrat', sans-serif; }
     .hub-open:hover { background: var(--terracota-dark); }
     .hub-open[aria-disabled="true"] { background: rgba(0,0,0,0.06); color: rgba(44,36,22,0.45); pointer-events: none; }
-    .files-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-    .file-item { display:flex; align-items:center; justify-content:space-between; gap: 16px; padding: 14px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.92); }
-    .file-info { min-width: 220px; }
-    .file-name { font-weight: 700; font-size: 1.02rem; line-height: 1.25; margin-bottom: 4px; }
-    .file-meta { color: var(--texto-suave); font-size: 0.9rem; }
-    .file-actions { display:flex; flex-wrap: wrap; gap: 10px; justify-content:flex-end; }
-    @media (max-width: 720px) { .file-item { flex-direction: column; align-items: flex-start; } .file-actions { justify-content:flex-start; } }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1200; }
+    .files-list { display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem; }
+    .file-item { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); background: var(--bege); }
+    .file-info { min-width: 0; flex: 1; }
+    .file-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta { color: var(--texto-suave); font-size: 0.82rem; }
+    .file-actions { display:flex; gap: 8px; flex-shrink: 0; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1200; padding: 1rem; }
     .modal-overlay.show { display: flex; }
-    .modal { background: var(--branco); border-radius: 16px; padding: 2rem; width: 92%; max-width: 920px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 85vh; overflow: auto; }
-    .modal h2 { font-size: 1.5rem; margin-bottom: 1.25rem; color: var(--texto); }
+    .modal { background: var(--branco); border-radius: 16px; padding: 2rem; width: 100%; max-width: 680px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .modal h2 { font-size: 1.4rem; margin-bottom: 1.25rem; color: var(--texto); }
     .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
-    .grid-span-2 { grid-column: 1 / -1; }
-    @media (max-width: 768px) { .sidebar { width: 200px; } .main-content { margin-left: 200px; padding: 1.5rem; } .stats-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } .grid-span-2 { grid-column: auto; } }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .modal-view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; margin-bottom: 1.5rem; }
+    .view-field label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texto-suave); margin-bottom: 3px; display: block; }
+    .view-field p { font-size: 0.95rem; font-weight: 500; color: var(--texto); }
+    .view-divider { grid-column: 1/-1; border: none; border-top: 1px solid var(--bege-dark); margin: 0.5rem 0; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-cliente { background: #DBEAFE; color: #1D4ED8; }
+    .badge-fornecedor { background: #D1FAE5; color: #065F46; }
+    .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1500; padding: 1rem; }
+    .confirm-overlay.show { display: flex; }
+    .confirm-box { background: var(--branco); border-radius: 16px; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+    .confirm-box h3 { margin-bottom: 0.75rem; color: var(--texto); }
+    .confirm-box p { color: var(--texto-suave); margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .confirm-actions { display: flex; gap: 1rem; }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div class="login-container" id="loginPage">
-    <div class="login-box">
-      <div class="login-logo">DOPPIO</div>
-      <div class="login-subtitle">Portal do Cliente</div>
-      <div class="error-message" id="loginError"></div>
+<!-- LOGIN -->
+<div class="login-container" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">DOPPIO</div>
+    <div class="login-subtitle">Portal do Cliente</div>
+    <div class="error-message" id="loginError"></div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="loginEmail" placeholder="seu@email.com" type="email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <div class="password-wrapper">
+        <input class="form-input" id="loginPassword" placeholder="••••••••" style="padding-right:3rem;" type="password"/>
+        <button class="password-toggle" onclick="togglePassword()" type="button">
+          <svg fill="none" height="20" id="eyeIcon" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button class="btn-login" id="btnLogin" onclick="handleLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div class="portal-container" id="portalPage">
+  <aside class="sidebar">
+    <div class="sidebar-logo">DOPPIO</div>
+    <div class="sidebar-menu">
+      <div class="menu-item active" id="menuDashboard" onclick="showSection('dashboard')">
+        <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
+          <rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect>
+          <rect height="7" width="7" x="3" y="14"></rect><rect height="7" width="7" x="14" y="14"></rect>
+        </svg>Dashboard
+      </div>
+      <div class="menu-item" id="menuCadastro" onclick="showSection('cadastro')" style="display:none;">
+        <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        </svg>Cadastro
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div><div class="user-name" id="userName">Usuário</div><div class="user-role" id="userRole">Cliente</div></div>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">Sair</button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <section class="section active" id="sectionDashboard">
+      <div class="page-header">
+        <h1 class="page-title" id="dashboardTitle">Seu Portal</h1>
+        <p class="page-subtitle" id="dashboardSubtitle">Bem-vindo ao portal</p>
+      </div>
+      <div id="dashboardContent"><div class="loading"><div class="spinner"></div></div></div>
+    </section>
+    <section class="section" id="sectionCadastro">
+      <div class="page-header">
+        <h1 class="page-title">Cadastro</h1>
+        <p class="page-subtitle">Gerenciar acessos e links do Drive</p>
+      </div>
+      <div id="cadastroContent"><div class="loading"><div class="spinner"></div></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL NOVO ACESSO -->
+<div class="modal-overlay" id="modalNovoAcesso">
+  <div class="modal">
+    <h2>Novo Acesso</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-input" id="novoTipo" onchange="toggleClienteFields()">
+          <option value="cliente">Cliente</option>
+          <option value="fornecedor">Fornecedor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código</label>
+        <input class="form-input" id="novoCode" placeholder="Ex: 2026-001" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="novoName" placeholder="Nome completo" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Projeto</label>
+        <input class="form-input" id="novoProject" placeholder="Ex: Residência Alphaville" type="text"/>
+      </div>
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input class="form-input" id="loginEmail" placeholder="seu@email.com" type="email"/>
+        <input class="form-input" id="novoEmail" placeholder="email@exemplo.com" type="email"/>
       </div>
       <div class="form-group">
         <label class="form-label">Senha</label>
-        <div class="password-wrapper">
-          <input class="form-input" id="loginPassword" placeholder="••••••••" style="padding-right:3rem;" type="password"/>
-          <button class="password-toggle" onclick="togglePassword()" type="button" aria-label="Mostrar/ocultar senha">
-            <svg fill="none" height="20" id="eyeIcon" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
+        <input class="form-input" id="novoPassword" placeholder="Mínimo 6 caracteres" type="password"/>
       </div>
-      <button class="btn-login" id="btnLogin" onclick="handleLogin()">Entrar</button>
-    </div>
-  </div>
-
-  <!-- PORTAL -->
-  <div class="portal-container" id="portalPage">
-    <aside class="sidebar">
-      <div class="sidebar-logo">DOPPIO</div>
-      <div class="sidebar-menu">
-        <div class="menu-item active" id="menuDashboard" onclick="showSection('dashboard')">
-          <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
-            <rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect>
-            <rect height="7" width="7" x="3" y="14"></rect><rect height="7" width="7" x="14" y="14"></rect>
-          </svg>
-          Dashboard
-        </div>
-        <div class="menu-item" id="menuCadastro" onclick="showSection('cadastro')">
-          <svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          </svg>
-          Cadastro
-        </div>
+      <div class="form-group" id="wrapPhone">
+        <label class="form-label">Telefone</label>
+        <input class="form-input" id="novoPhone" placeholder="(86) 99999-9999" type="tel"/>
       </div>
-      <div class="sidebar-user">
-        <div class="user-info">
-          <div class="user-avatar" id="userAvatar">?</div>
-          <div>
-            <div class="user-name" id="userName">Usuário</div>
-            <div class="user-role" id="userRole">Cliente</div>
-          </div>
-        </div>
-        <button class="btn-logout" onclick="handleLogout()">Sair</button>
+      <div class="form-group" id="wrapBirth">
+        <label class="form-label">Data de Nascimento</label>
+        <input class="form-input" id="novoBirth" type="date"/>
       </div>
-    </aside>
-    <main class="main-content">
-      <section class="section active" id="sectionDashboard">
-        <div class="page-header">
-          <h1 class="page-title" id="dashboardTitle">Seu Portal</h1>
-          <p class="page-subtitle" id="dashboardSubtitle">Bem-vindo ao portal</p>
-        </div>
-        <div id="dashboardContent"><div class="loading"><div class="spinner"></div></div></div>
-      </section>
-      <section class="section" id="sectionCadastro">
-        <div class="page-header">
-          <h1 class="page-title">Cadastro</h1>
-          <p class="page-subtitle">Criar acessos e configurar links do Drive</p>
-        </div>
-        <div id="cadastroContent"><div class="loading"><div class="spinner"></div></div></div>
-      </section>
-    </main>
-  </div>
-
-  <!-- MODAL NOVO ACESSO -->
-  <div class="modal-overlay" id="modalNovoAcesso">
-    <div class="modal">
-      <h2>Novo Acesso</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Tipo de acesso</label>
-          <select class="form-input" id="novoTipo" onchange="toggleClienteFields()">
-            <option value="cliente" selected>Cliente</option>
-            <option value="fornecedor">Fornecedor</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Código</label>
-          <input class="form-input" id="novoCode" placeholder="Ex: 2026-001" type="text"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input class="form-input" id="novoName" placeholder="Ex: Silva" type="text"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Projeto</label>
-          <input class="form-input" id="novoProject" placeholder="Ex: Residência Alphaville" type="text"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input class="form-input" id="novoEmail" placeholder="cliente@email.com" type="email"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Senha</label>
-          <input class="form-input" id="novoPassword" placeholder="Mínimo 6 caracteres" type="password"/>
-        </div>
-        <div class="form-group" id="wrapPhone">
-          <label class="form-label">Telefone</label>
-          <input class="form-input" id="novoPhone" placeholder="Ex: (86) 99999-9999" type="tel"/>
-        </div>
-        <div class="form-group" id="wrapAddress">
-          <label class="form-label">Endereço</label>
-          <input class="form-input" id="novoAddress" placeholder="Ex: Rua das Flores, 123 - Teresina/PI" type="text"/>
-        </div>
-        <div class="form-group" id="wrapBirth">
-          <label class="form-label">Data de Nascimento</label>
-          <input class="form-input" id="novoBirth" type="date"/>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoAcesso')">Cancelar</button>
-        <button class="btn btn-primary btn-block" id="btnCriarAcesso" onclick="criarAcesso()">Criar</button>
+      <div class="form-group" id="wrapAddress" style="grid-column:1/-1;">
+        <label class="form-label">Endereço</label>
+        <input class="form-input" id="novoAddress" placeholder="Rua, número, bairro, cidade/UF" type="text"/>
       </div>
     </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeModal('modalNovoAcesso')">Cancelar</button>
+      <button class="btn btn-primary btn-block" id="btnCriarAcesso" onclick="criarAcesso()">Criar</button>
+    </div>
   </div>
+</div>
 
-  <!-- MODAL CONFIG LINKS -->
-  <div class="modal-overlay" id="modalConfigLinks">
-    <div class="modal">
-      <h2>Configurar Links</h2>
-      <input id="configProfileId" type="hidden"/>
-      <p style="color:var(--texto-suave); margin-bottom:1rem;">Projeto: <strong id="configTitle"></strong></p>
-      <div class="form-group" id="wrapDocs">
-        <label class="form-label">Link - Documentos (Drive)</label>
-        <input class="form-input" id="linkDocumentos" placeholder="Cole o link da pasta no Google Drive" type="url"/>
+<!-- MODAL VISUALIZAR -->
+<div class="modal-overlay" id="modalVisualizar">
+  <div class="modal">
+    <h2>Dados do Cadastro</h2>
+    <div class="modal-view-grid" id="viewContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeModal('modalVisualizar')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="modalEditar">
+  <div class="modal">
+    <h2>Editar Cadastro</h2>
+    <input id="editProfileId" type="hidden"/>
+    <input id="editRole" type="hidden"/>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Código</label>
+        <input class="form-input" id="editCode" type="text"/>
       </div>
       <div class="form-group">
-        <label class="form-label">Link - Arquivos de Projeto (Drive)</label>
-        <input class="form-input" id="linkArquivos" placeholder="Cole o link da pasta no Google Drive" type="url"/>
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="editName" type="text"/>
       </div>
-      <div class="form-group">
-        <label class="form-label">Link - Renders (Drive)</label>
-        <input class="form-input" id="linkRenders" placeholder="Cole o link da pasta no Google Drive" type="url"/>
+      <div class="form-group" style="grid-column:1/-1;">
+        <label class="form-label">Projeto</label>
+        <input class="form-input" id="editProject" type="text"/>
       </div>
-      <div class="form-group" id="wrapObra">
-        <label class="form-label">Link - Imagens de Obra (Drive)</label>
-        <input class="form-input" id="linkObra" placeholder="Cole o link da pasta no Google Drive" type="url"/>
+      <div class="form-group" id="editWrapPhone">
+        <label class="form-label">Telefone</label>
+        <input class="form-input" id="editPhone" type="tel"/>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary btn-block" onclick="closeModal('modalConfigLinks')">Cancelar</button>
-        <button class="btn btn-primary btn-block" onclick="salvarLinks()">Salvar</button>
+      <div class="form-group" id="editWrapBirth">
+        <label class="form-label">Data de Nascimento</label>
+        <input class="form-input" id="editBirth" type="date"/>
+      </div>
+      <div class="form-group" id="editWrapAddress" style="grid-column:1/-1;">
+        <label class="form-label">Endereço</label>
+        <input class="form-input" id="editAddress" type="text"/>
       </div>
     </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeModal('modalEditar')">Cancelar</button>
+      <button class="btn btn-primary btn-block" id="btnSalvarEdicao" onclick="salvarEdicao()">Salvar</button>
+    </div>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<!-- MODAL CONFIG LINKS -->
+<div class="modal-overlay" id="modalConfigLinks">
+  <div class="modal">
+    <h2>Configurar Links</h2>
+    <input id="configProfileId" type="hidden"/>
+    <p style="color:var(--texto-suave);margin-bottom:1rem;">Projeto: <strong id="configTitle"></strong></p>
+    <div class="form-group" id="wrapDocs">
+      <label class="form-label">Documentos (Drive)</label>
+      <input class="form-input" id="linkDocumentos" placeholder="Cole o link da pasta" type="url"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Arquivos de Projeto (Drive)</label>
+      <input class="form-input" id="linkArquivos" placeholder="Cole o link da pasta" type="url"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Renders (Drive)</label>
+      <input class="form-input" id="linkRenders" placeholder="Cole o link da pasta" type="url"/>
+    </div>
+    <div class="form-group" id="wrapObra">
+      <label class="form-label">Imagens de Obra (Drive)</label>
+      <input class="form-input" id="linkObra" placeholder="Cole o link da pasta" type="url"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeModal('modalConfigLinks')">Cancelar</button>
+      <button class="btn btn-primary btn-block" onclick="salvarLinks()">Salvar</button>
+    </div>
+  </div>
+</div>
 
-  <!-- Supabase carregado ANTES do script principal -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirmDelete">
+  <div class="confirm-box">
+    <h3>Excluir acesso</h3>
+    <p id="confirmMsg">Tem certeza? Esta ação não pode ser desfeita.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary btn-block" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger btn-block" id="btnConfirmDelete" onclick="confirmarExclusao()">Excluir</button>
+    </div>
+  </div>
+</div>
 
-  <script>
-    /* ============================================================
-       CONFIGURAÇÃO
-    ============================================================ */
-    const SUPABASE_URL      = "https://haqwejvyniytgihndeob.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
-    const ADMIN_CREATE_KEY  = "doppio-admin-2026";
+<div class="toast" id="toast"></div>
 
-    /* ============================================================
-       CLIENTE SUPABASE — usa "sb" para não colidir com window.supabase
-    ============================================================ */
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL      = "https://haqwejvyniytgihndeob.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhcXdlanZ5bml5dGdpaG5kZW9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0ODYzMjUsImV4cCI6MjA4ODA2MjMyNX0.Gm9G8iKt9GH7FUJstu2Y_M1VJe77-px8HfCdyRN-niA";
+  const ADMIN_CREATE_KEY  = "doppio-admin-2026";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    /* ============================================================
-       HELPERS UI
-    ============================================================ */
-    const el = (id) => document.getElementById(id);
+  const el = id => document.getElementById(id);
+  let _deleteId = null;
 
-    function showToast(msg, isError = false) {
-      const t = el("toast");
-      t.textContent = msg;
-      t.classList.toggle("error", !!isError);
-      t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 3200);
-    }
+  function showToast(msg, isError=false) {
+    const t = el("toast");
+    t.textContent = msg;
+    t.classList.toggle("error", !!isError);
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3200);
+  }
 
-    function escapeHTML(str) {
-      return (str || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[s]));
-    }
-    function escapeAttr(str) { return (str || "").replace(/"/g, "&quot;"); }
+  function escapeHTML(s) {
+    return (s||"").replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-    function togglePassword() {
-      const input = el("loginPassword");
-      const icon  = el("eyeIcon");
-      if (!input) return;
-      const isPass = input.type === "password";
-      input.type = isPass ? "text" : "password";
-      if (icon) icon.style.opacity = isPass ? "0.6" : "1";
-    }
+  function togglePassword() {
+    const i = el("loginPassword");
+    i.type = i.type === "password" ? "text" : "password";
+  }
 
-    function openModal(id)  { const m = el(id); if (m) m.classList.add("show"); }
-    function closeModal(id) { const m = el(id); if (m) m.classList.remove("show"); }
+  function openModal(id)  { el(id).classList.add("show"); }
+  function closeModal(id) { el(id).classList.remove("show"); }
 
-    window.addEventListener("click", (e) => {
-      ["modalNovoAcesso", "modalConfigLinks"].forEach(id => {
-        const m = el(id);
-        if (m && e.target === m) m.classList.remove("show");
-      });
+  window.addEventListener("click", e => {
+    ["modalNovoAcesso","modalVisualizar","modalEditar","modalConfigLinks"].forEach(id => {
+      if (e.target === el(id)) el(id).classList.remove("show");
     });
+  });
 
-    /* ============================================================
-       AUTH
-    ============================================================ */
-    function showLogin() {
-      el("loginPage").style.display  = "flex";
-      el("portalPage").classList.remove("active");
-      el("loginError").style.display = "none";
-    }
+  // AUTH
+  function showLogin() {
+    el("loginPage").style.display = "flex";
+    el("portalPage").classList.remove("active");
+  }
+  function showPortal() {
+    el("loginPage").style.display = "none";
+    el("portalPage").classList.add("active");
+  }
+  function setUserUI({name, role}) {
+    el("userName").textContent  = name || "Usuário";
+    el("userRole").textContent  = role === "admin" ? "Admin" : role === "fornecedor" ? "Fornecedor" : "Cliente";
+    el("userAvatar").textContent = (name||"?").trim()[0].toUpperCase();
+  }
 
-    function showPortal() {
-      el("loginPage").style.display = "none";
-      el("portalPage").classList.add("active");
-    }
+  async function handleLogin() {
+    const email    = (el("loginEmail").value||"").trim().toLowerCase();
+    const password = el("loginPassword").value||"";
+    const errBox   = el("loginError");
+    const btn      = el("btnLogin");
+    if (!email||!password) { errBox.textContent="Preencha email e senha."; errBox.style.display="block"; return; }
+    btn.disabled = true; errBox.style.display = "none";
+    const {data,error} = await sb.auth.signInWithPassword({email,password});
+    btn.disabled = false;
+    if (error||!data?.user) { errBox.textContent="Email ou senha inválidos."; errBox.style.display="block"; return; }
+    await initApp();
+  }
 
-    function setUserUI({ name, role }) {
-      el("userName").textContent  = name || "Usuário";
-      el("userRole").textContent  = role === "admin" ? "Admin" : (role === "fornecedor" ? "Fornecedor" : "Cliente");
-      el("userAvatar").textContent = (name || "?").trim().slice(0, 1).toUpperCase();
-    }
+  async function handleLogout() { await sb.auth.signOut(); showLogin(); }
 
-    async function handleLogin() {
-      const email    = (el("loginEmail").value    || "").trim().toLowerCase();
-      const password = (el("loginPassword").value || "");
-      const errorBox = el("loginError");
-      const btn      = el("btnLogin");
+  // SECTIONS
+  function setActiveMenu(name) {
+    el("menuDashboard").classList.toggle("active", name==="dashboard");
+    el("menuCadastro").classList.toggle("active",  name==="cadastro");
+  }
+  function showSection(name) {
+    el("sectionDashboard").classList.toggle("active", name==="dashboard");
+    el("sectionCadastro").classList.toggle("active",  name==="cadastro");
+    setActiveMenu(name);
+    if (name==="dashboard") renderDashboard();
+    if (name==="cadastro")  renderCadastro();
+  }
 
-      if (!email || !password) {
-        errorBox.textContent   = "Preencha email e senha.";
-        errorBox.style.display = "block";
-        return;
-      }
+  // EDGE FUNCTIONS
+  async function callFn(fn, payload) {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "x-admin-key": ADMIN_CREATE_KEY,
+      },
+      body: JSON.stringify(payload||{}),
+    });
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch(e) { data = {raw:txt}; }
+    if (!res.ok) throw new Error(data?.error || `Erro ${res.status}`);
+    return data;
+  }
 
-      btn.disabled           = true;
-      errorBox.style.display = "none";
+  // DATA
+  async function fetchMyProfile() {
+    const {data:{user}} = await sb.auth.getUser();
+    if (!user) return null;
+    const {data,error} = await sb.from("profiles").select("id,role,codigo,nome,projeto,phone,address,birth").eq("id",user.id).single();
+    if (error) throw error;
+    return data;
+  }
+  async function fetchMyLinks(profileId) {
+    const {data,error} = await sb.from("drive_links").select("profile_id,documentos,arquivos,renders,obra").eq("profile_id",profileId).maybeSingle();
+    if (error) throw error;
+    return data || {profile_id:profileId,documentos:null,arquivos:null,renders:null,obra:null};
+  }
 
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      btn.disabled = false;
+  // DASHBOARD
+  function hubButton(label, url) {
+    const disabled = !url;
+    const parts = (label||"").trim().split(/\s+/);
+    const hasIcon = parts[0] && !/^[A-Za-z0-9]/.test(parts[0]);
+    const icon = hasIcon ? parts[0] : "🔗";
+    const title = hasIcon ? parts.slice(1).join(" ") : label;
+    return `<div class="project-card ${disabled?"disabled":""}">
+      <div class="hub-left">
+        <div class="hub-icon">${escapeHTML(icon)}</div>
+        <div><div class="hub-title">${escapeHTML(title)}</div>
+        <div class="hub-sub">${disabled?"Link não configurado":"Clique para abrir no Google Drive"}</div></div>
+      </div>
+      <div class="hub-actions">
+        <a class="hub-open" href="${disabled?"#":url}" target="_blank" rel="noopener" aria-disabled="${disabled}">
+          Abrir ↗
+        </a>
+      </div>
+    </div>`;
+  }
 
-      if (error || !data?.user) {
-        errorBox.textContent   = "Email ou senha inválidos.";
-        errorBox.style.display = "block";
-        return;
-      }
+  async function renderDashboard() {
+    const c = el("dashboardContent");
+    c.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
+    try {
+      const profile = await fetchMyProfile();
+      if (!profile) { c.innerHTML=`<div class="card"><p>Não autenticado.</p></div>`; return; }
+      const role = (profile.role||"").toLowerCase();
+      const isAdmin = role==="admin";
+      el("dashboardTitle").textContent    = isAdmin ? "Dashboard" : "Seu Portal";
+      el("dashboardSubtitle").textContent = isAdmin ? "Gerencie acessos e links do Drive" : "Acesso rápido às pastas do Drive";
 
-      await initApp();
-    }
-
-    async function handleLogout() {
-      await sb.auth.signOut();
-      showLogin();
-    }
-
-    /* ============================================================
-       SECTIONS
-    ============================================================ */
-    function setActiveMenu(name) {
-      el("menuDashboard").classList.toggle("active", name === "dashboard");
-      el("menuCadastro").classList.toggle("active",  name === "cadastro");
-    }
-
-    function showSection(name) {
-      el("sectionDashboard").classList.toggle("active", name === "dashboard");
-      el("sectionCadastro").classList.toggle("active",  name === "cadastro");
-      setActiveMenu(name);
-      if (name === "dashboard") renderDashboard();
-      if (name === "cadastro")  renderCadastro();
-    }
-
-    /* ============================================================
-       EDGE FUNCTIONS — inclui apikey + Authorization exigidos pelo gateway
-    ============================================================ */
-    async function callFn(fnName, payload) {
-      if (!ADMIN_CREATE_KEY) throw new Error("ADMIN_CREATE_KEY não configurada.");
-
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/${fnName}`, {
-        method: "POST",
-        headers: {
-          "Content-Type":  "application/json",
-          "apikey":        SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-          "x-admin-key":   ADMIN_CREATE_KEY,
-        },
-        body: JSON.stringify(payload || {}),
-      });
-
-      const txt = await res.text();
-      let data;
-      try { data = JSON.parse(txt); } catch (e) { data = { raw: txt }; }
-
-      if (!res.ok) throw new Error(data?.error || `Erro ${res.status}`);
-      return data;
-    }
-
-    /* ============================================================
-       DATA — leitura direta via SDK (respeita RLS)
-    ============================================================ */
-    async function fetchMyProfile() {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) return null;
-
-      const { data, error } = await sb
-        .from("profiles")
-        .select("id, role, codigo, nome, projeto")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
-
-    async function fetchMyLinks(profileId) {
-      const { data, error } = await sb
-        .from("drive_links")
-        .select("profile_id, documentos, arquivos, renders, obra")
-        .eq("profile_id", profileId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data || { profile_id: profileId, documentos: null, arquivos: null, renders: null, obra: null };
-    }
-
-    /* ============================================================
-       RENDER DASHBOARD
-    ============================================================ */
-    function hubButton(label, url) {
-      const disabled = !url;
-      const safeUrl  = url ? escapeAttr(url) : "#";
-      const parts    = (label || "").trim().split(/\s+/);
-      const first    = parts[0] || "";
-      const hasIcon  = first && !/^[A-Za-z0-9]/.test(first);
-      const icon     = hasIcon ? first : "🔗";
-      const title    = hasIcon ? parts.slice(1).join(" ") : (label || "");
-      return `
-        <div class="project-card ${disabled ? "disabled" : ""}">
-          <div class="hub-left">
-            <div class="hub-icon">${escapeHTML(icon)}</div>
-            <div>
-              <div class="hub-title">${escapeHTML(title.trim())}</div>
-              <div class="hub-sub">${disabled ? "Link não configurado" : "Clique para abrir a pasta no Google Drive"}</div>
-            </div>
-          </div>
-          <div class="hub-actions">
-            <a class="hub-open" href="${disabled ? "#" : safeUrl}" target="_blank" rel="noopener noreferrer" aria-disabled="${disabled ? "true" : "false"}">
-              Abrir no Drive <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </div>`;
-    }
-
-    async function renderDashboard() {
-      const container = el("dashboardContent");
-      container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
-
-      try {
-        const profile = await fetchMyProfile();
-        if (!profile) { container.innerHTML = `<div class="card"><p>Você não está logado.</p></div>`; return; }
-
-        const role    = (profile.role || "").toLowerCase();
-        const isAdmin = role === "admin";
-
-        el("dashboardTitle").textContent    = isAdmin ? "Dashboard" : "Seu Portal";
-        el("dashboardSubtitle").textContent = isAdmin ? "Gerencie acessos e links do Drive" : "Acesso rápido às pastas do Drive";
-
-        if (isAdmin) {
-          const listData     = await callFn("list-accesses", {});
-          const items        = (listData?.items || []).filter(x => ["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
-          const clientes     = items.filter(x => (x.role || "").toLowerCase() === "cliente");
-          const fornecedores = items.filter(x => (x.role || "").toLowerCase() === "fornecedor");
-
-          container.innerHTML = `
-            <div class="stats-grid">
-              <div class="stat-card"><div class="stat-value">${clientes.length}</div><div class="stat-label">clientes</div></div>
-              <div class="stat-card"><div class="stat-value">${fornecedores.length}</div><div class="stat-label">fornecedores</div></div>
-              <div class="stat-card"><div class="stat-value">Drive</div><div class="stat-label">portal como hub</div></div>
-            </div>
-            <div class="card">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-                <div>
-                  <h3 style="margin-bottom:0.35rem;">Acessos cadastrados</h3>
-                  <p style="color:var(--texto-suave);margin:0;">Configure os links do Drive por cliente/fornecedor.</p>
-                </div>
-                <button class="btn btn-primary" onclick="openNovoAcesso()">+ Novo Acesso</button>
-              </div>
-              <div id="adminList" style="margin-top:1.25rem;"></div>
-            </div>`;
-
-          const listEl = el("adminList");
-          if (!items.length) {
-            listEl.innerHTML = `<p style="color:var(--texto-suave);">Nenhum acesso cadastrado ainda.</p>`;
-            return;
-          }
-
-          listEl.innerHTML = `<div class="files-list">` + items
-            .slice().sort((a, b) => (b.codigo || "").localeCompare(a.codigo || ""))
-            .map(p => {
-              const title = [p.codigo, p.nome, p.projeto].filter(Boolean).join(" – ");
-              const tipo  = (p.role || "").toLowerCase() === "fornecedor" ? "Fornecedor" : "Cliente";
-              const linksJson = escapeAttr(JSON.stringify(p.links || {}));
-              return `
-                <div class="file-item">
-                  <div class="file-info">
-                    <div class="file-name">${escapeHTML(title)}</div>
-                    <div class="file-meta">${escapeHTML(tipo)}</div>
-                  </div>
-                  <div class="file-actions">
-                    <button class="btn btn-secondary" onclick="openConfigLinks('${escapeAttr(p.id)}','${escapeAttr(p.role)}','${escapeAttr(p.codigo||"")}','${escapeAttr(p.nome||"")}','${escapeAttr(p.projeto||"")}','${linksJson}')">Links</button>
-                  </div>
-                </div>`;
-            }).join("") + `</div>`;
-          return;
-        }
-
-        // Cliente / Fornecedor
-        const links        = await fetchMyLinks(profile.id);
-        const title        = [profile.codigo, profile.nome, profile.projeto].filter(Boolean).join(" – ");
-        const isFornecedor = role === "fornecedor";
-        const grid = isFornecedor
-          ? (hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders))
-          : (hubButton("📄 Documentos", links?.documentos) + hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders) + hubButton("🏗️ Imagens de Obra", links?.obra));
-
-        container.innerHTML = `
-          <div class="card">
-            <h2 style="margin-bottom:0.5rem;">${escapeHTML(title)}</h2>
-            <p style="color:var(--texto-suave);margin-top:0;margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
-            <div class="projects-grid">${grid}</div>
-          </div>`;
-
-      } catch (e) {
-        console.error(e);
-        container.innerHTML = `<div class="card"><h3 style="margin:0 0 10px;">Erro ao carregar</h3><p style="color:var(--texto-suave);">${escapeHTML(String(e?.message || e))}</p></div>`;
-        showToast("Erro ao carregar dashboard.", true);
-      }
-    }
-
-    /* ============================================================
-       CADASTRO (ADMIN)
-    ============================================================ */
-    async function renderCadastro() {
-      const container = el("cadastroContent");
-      container.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
-
-      try {
-        const profile = await fetchMyProfile();
-        if ((profile?.role || "").toLowerCase() !== "admin") { showSection("dashboard"); return; }
-
+      if (isAdmin) {
         const listData = await callFn("list-accesses", {});
-        const items    = (listData?.items || []).filter(x => ["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
-
-        container.innerHTML = `
+        const items    = (listData?.items||[]).filter(x=>["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
+        const clientes     = items.filter(x=>(x.role||"").toLowerCase()==="cliente");
+        const fornecedores = items.filter(x=>(x.role||"").toLowerCase()==="fornecedor");
+        c.innerHTML = `
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value">${clientes.length}</div><div class="stat-label">Clientes</div></div>
+            <div class="stat-card"><div class="stat-value">${fornecedores.length}</div><div class="stat-label">Fornecedores</div></div>
+            <div class="stat-card"><div class="stat-value">Drive</div><div class="stat-label">Portal como hub</div></div>
+          </div>
           <div class="card">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-              <div>
-                <h3 style="margin-bottom:0.35rem;">Cadastro de acessos</h3>
-                <p style="color:var(--texto-suave);margin:0;">Crie acessos e configure links do Google Drive.</p>
-              </div>
+              <div><h3 style="margin-bottom:0.25rem;">Acessos cadastrados</h3>
+              <p style="color:var(--texto-suave);margin:0;font-size:0.9rem;">Visualize, edite ou configure os links do Drive.</p></div>
               <button class="btn btn-primary" onclick="openNovoAcesso()">+ Novo Acesso</button>
             </div>
-            <div id="cadList" style="margin-top:1.25rem;"></div>
+            <div id="adminList"></div>
           </div>`;
-
-        const listEl = el("cadList");
-        if (!items.length) {
-          listEl.innerHTML = `<p style="color:var(--texto-suave);">Nenhum acesso cadastrado.</p>`;
-          return;
-        }
-
-        listEl.innerHTML = `<div class="files-list">` + items
-          .slice().sort((a, b) => (b.codigo || "").localeCompare(a.codigo || ""))
-          .map(p => {
-            const title     = [p.codigo, p.nome, p.projeto].filter(Boolean).join(" – ");
-            const tipo      = (p.role || "").toLowerCase() === "fornecedor" ? "Fornecedor" : "Cliente";
-            const linksJson = escapeAttr(JSON.stringify(p.links || {}));
-            return `
-              <div class="file-item">
-                <div class="file-info">
-                  <div class="file-name">${escapeHTML(title)}</div>
-                  <div class="file-meta">${escapeHTML(tipo)}</div>
-                </div>
-                <div class="file-actions">
-                  <button class="btn btn-secondary" onclick="openConfigLinks('${escapeAttr(p.id)}','${escapeAttr(p.role)}','${escapeAttr(p.codigo||"")}','${escapeAttr(p.nome||"")}','${escapeAttr(p.projeto||"")}','${linksJson}')">Links</button>
-                </div>
-              </div>`;
-          }).join("") + `</div>`;
-
-      } catch (e) {
-        console.error(e);
-        container.innerHTML = `<div class="card"><h3 style="margin:0 0 10px;">Erro no cadastro</h3><p style="color:var(--texto-suave);">${escapeHTML(String(e?.message || e))}</p></div>`;
-        showToast("Erro ao carregar cadastro.", true);
+        renderList("adminList", items);
+        return;
       }
+
+      const links = await fetchMyLinks(profile.id);
+      const title = [profile.codigo,profile.nome,profile.projeto].filter(Boolean).join(" – ");
+      const isForn = role==="fornecedor";
+      const grid = isForn
+        ? hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders)
+        : hubButton("📄 Documentos", links?.documentos) + hubButton("🧩 Arquivos de Projeto", links?.arquivos) + hubButton("🖼️ Renders", links?.renders) + hubButton("🏗️ Imagens de Obra", links?.obra);
+      c.innerHTML = `<div class="card"><h2 style="margin-bottom:0.5rem;">${escapeHTML(title)}</h2>
+        <p style="color:var(--texto-suave);margin-bottom:1.25rem;">Acesso rápido às pastas do Google Drive.</p>
+        <div class="projects-grid">${grid}</div></div>`;
+    } catch(e) {
+      console.error(e);
+      c.innerHTML = `<div class="card"><h3>Erro ao carregar</h3><p style="color:var(--texto-suave);">${escapeHTML(String(e?.message||e))}</p></div>`;
     }
+  }
 
-    function toggleClienteFields() {
-      const isCliente = (el("novoTipo").value || "").toLowerCase() === "cliente";
-      el("wrapPhone").style.display   = isCliente ? "" : "none";
-      el("wrapAddress").style.display = isCliente ? "" : "none";
-      el("wrapBirth").style.display   = isCliente ? "" : "none";
+  async function renderCadastro() {
+    const c = el("cadastroContent");
+    c.innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
+    try {
+      const profile = await fetchMyProfile();
+      if ((profile?.role||"").toLowerCase()!=="admin") { showSection("dashboard"); return; }
+      const listData = await callFn("list-accesses", {});
+      const items = (listData?.items||[]).filter(x=>["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
+      c.innerHTML = `<div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div><h3 style="margin-bottom:0.25rem;">Cadastro de acessos</h3>
+          <p style="color:var(--texto-suave);margin:0;font-size:0.9rem;">Gerencie clientes e fornecedores.</p></div>
+          <button class="btn btn-primary" onclick="openNovoAcesso()">+ Novo Acesso</button>
+        </div>
+        <div id="cadList"></div>
+      </div>`;
+      renderList("cadList", items);
+    } catch(e) {
+      console.error(e);
+      el("cadastroContent").innerHTML = `<div class="card"><h3>Erro</h3><p>${escapeHTML(String(e?.message||e))}</p></div>`;
     }
+  }
 
-    function openNovoAcesso() {
-      el("novoTipo").value     = "cliente";
-      el("novoCode").value     = "";
-      el("novoName").value     = "";
-      el("novoProject").value  = "";
-      el("novoEmail").value    = "";
-      el("novoPassword").value = "";
-      el("novoPhone").value    = "";
-      el("novoAddress").value  = "";
-      el("novoBirth").value    = "";
-      toggleClienteFields();
-      openModal("modalNovoAcesso");
+  function renderList(containerId, items) {
+    const listEl = el(containerId);
+    if (!items.length) { listEl.innerHTML=`<p style="color:var(--texto-suave);margin-top:1rem;">Nenhum acesso cadastrado.</p>`; return; }
+    listEl.innerHTML = `<div class="files-list">` + items.map(p => {
+      const title = [p.codigo,p.nome,p.projeto].filter(Boolean).join(" – ");
+      const tipo  = (p.role||"").toLowerCase()==="fornecedor" ? "Fornecedor" : "Cliente";
+      const badgeCls = (p.role||"").toLowerCase()==="fornecedor" ? "badge-fornecedor" : "badge-cliente";
+      const safeId    = encodeURIComponent(p.id);
+      const safeRole  = encodeURIComponent(p.role||"");
+      const safeData  = encodeURIComponent(JSON.stringify(p));
+      return `<div class="file-item">
+        <div class="file-info">
+          <div class="file-name">${escapeHTML(title)}</div>
+          <div class="file-meta"><span class="badge ${badgeCls}">${escapeHTML(tipo)}</span></div>
+        </div>
+        <div class="file-actions">
+          <button class="btn btn-secondary" title="Visualizar" onclick="abrirVisualizar('${safeData}')">👁</button>
+          <button class="btn btn-secondary" title="Editar" onclick="abrirEditar('${safeData}')">✏️</button>
+          <button class="btn btn-secondary" title="Links" onclick="openConfigLinks('${safeId}','${safeRole}','${encodeURIComponent(JSON.stringify(p.links||{}))}')">🔗</button>
+          <button class="btn btn-danger" title="Excluir" onclick="pedirExclusao('${safeId}','${encodeURIComponent(escapeHTML(p.nome||""))}')">🗑</button>
+        </div>
+      </div>`;
+    }).join("") + `</div>`;
+  }
+
+  // NOVO ACESSO
+  function toggleClienteFields() {
+    const isCliente = el("novoTipo").value === "cliente";
+    el("wrapPhone").style.display   = isCliente ? "" : "none";
+    el("wrapBirth").style.display   = isCliente ? "" : "none";
+    el("wrapAddress").style.display = isCliente ? "" : "none";
+  }
+  function openNovoAcesso() {
+    ["novoTipo","novoCode","novoName","novoProject","novoEmail","novoPassword","novoPhone","novoAddress","novoBirth"].forEach(id => {
+      const e = el(id); if (e) e.value = id==="novoTipo" ? "cliente" : "";
+    });
+    toggleClienteFields();
+    openModal("modalNovoAcesso");
+  }
+  async function criarAcesso() {
+    const btn = el("btnCriarAcesso"); btn.disabled = true;
+    try {
+      const role     = (el("novoTipo").value||"").trim().toLowerCase();
+      const codigo   = (el("novoCode").value||"").trim();
+      const nome     = (el("novoName").value||"").trim();
+      const projeto  = (el("novoProject").value||"").trim();
+      const email    = (el("novoEmail").value||"").trim().toLowerCase();
+      const password = el("novoPassword").value||"";
+      const phone    = role==="cliente" ? (el("novoPhone").value||"").trim()||null : null;
+      const address  = role==="cliente" ? (el("novoAddress").value||"").trim()||null : null;
+      const birth    = role==="cliente" ? (el("novoBirth").value||"").trim()||null : null;
+      if (!role||!codigo||!nome||!projeto||!email||!password) { showToast("Preencha todos os campos obrigatórios.",true); return; }
+      if (password.length<6) { showToast("Senha mínimo 6 caracteres.",true); return; }
+      await callFn("create-account", {email,password,role,codigo,nome,projeto,phone,address,birth});
+      closeModal("modalNovoAcesso");
+      showToast("Acesso criado com sucesso!");
+      await renderDashboard(); await renderCadastro();
+    } catch(e) { console.error(e); showToast(e?.message||String(e),true); }
+    finally { btn.disabled=false; }
+  }
+
+  // VISUALIZAR
+  function abrirVisualizar(safeData) {
+    const p = JSON.parse(decodeURIComponent(safeData));
+    const tipo = (p.role||"").toLowerCase()==="fornecedor"?"Fornecedor":"Cliente";
+    const badgeCls = (p.role||"").toLowerCase()==="fornecedor"?"badge-fornecedor":"badge-cliente";
+    const isCliente = (p.role||"").toLowerCase()==="cliente";
+    el("viewContent").innerHTML = `
+      <div class="view-field"><label>Tipo</label><p><span class="badge ${badgeCls}">${escapeHTML(tipo)}</span></p></div>
+      <div class="view-field"><label>Código</label><p>${escapeHTML(p.codigo||"—")}</p></div>
+      <div class="view-field"><label>Nome</label><p>${escapeHTML(p.nome||"—")}</p></div>
+      <div class="view-field"><label>Projeto</label><p>${escapeHTML(p.projeto||"—")}</p></div>
+      ${isCliente?`
+      <hr class="view-divider"/>
+      <div class="view-field"><label>Telefone</label><p>${escapeHTML(p.phone||"—")}</p></div>
+      <div class="view-field"><label>Nascimento</label><p>${escapeHTML(p.birth||"—")}</p></div>
+      <div class="view-field" style="grid-column:1/-1;"><label>Endereço</label><p>${escapeHTML(p.address||"—")}</p></div>
+      `:""}
+      <hr class="view-divider"/>
+      <div class="view-field"><label>Documentos</label><p>${p.links?.documentos?`<a href="${p.links.documentos}" target="_blank" style="color:var(--terracota);">Abrir link</a>`:"—"}</p></div>
+      <div class="view-field"><label>Arquivos de Projeto</label><p>${p.links?.arquivos?`<a href="${p.links.arquivos}" target="_blank" style="color:var(--terracota);">Abrir link</a>`:"—"}</p></div>
+      <div class="view-field"><label>Renders</label><p>${p.links?.renders?`<a href="${p.links.renders}" target="_blank" style="color:var(--terracota);">Abrir link</a>`:"—"}</p></div>
+      ${isCliente?`<div class="view-field"><label>Imagens de Obra</label><p>${p.links?.obra?`<a href="${p.links.obra}" target="_blank" style="color:var(--terracota);">Abrir link</a>`:"—"}</p></div>`:""}
+    `;
+    openModal("modalVisualizar");
+  }
+
+  // EDITAR
+  function abrirEditar(safeData) {
+    const p = JSON.parse(decodeURIComponent(safeData));
+    el("editProfileId").value = p.id;
+    el("editRole").value      = p.role||"";
+    el("editCode").value      = p.codigo||"";
+    el("editName").value      = p.nome||"";
+    el("editProject").value   = p.projeto||"";
+    el("editPhone").value     = p.phone||"";
+    el("editBirth").value     = p.birth||"";
+    el("editAddress").value   = p.address||"";
+    const isCliente = (p.role||"").toLowerCase()==="cliente";
+    el("editWrapPhone").style.display   = isCliente?"":"none";
+    el("editWrapBirth").style.display   = isCliente?"":"none";
+    el("editWrapAddress").style.display = isCliente?"":"none";
+    openModal("modalEditar");
+  }
+  async function salvarEdicao() {
+    const btn = el("btnSalvarEdicao"); btn.disabled=true;
+    try {
+      const role = (el("editRole").value||"").toLowerCase();
+      await callFn("update-profile", {
+        action:    "update",
+        profile_id: el("editProfileId").value,
+        codigo:    el("editCode").value.trim(),
+        nome:      el("editName").value.trim(),
+        projeto:   el("editProject").value.trim(),
+        phone:     role==="cliente" ? el("editPhone").value.trim()||null : null,
+        birth:     role==="cliente" ? el("editBirth").value||null : null,
+        address:   role==="cliente" ? el("editAddress").value.trim()||null : null,
+      });
+      closeModal("modalEditar");
+      showToast("Cadastro atualizado!");
+      await renderDashboard(); await renderCadastro();
+    } catch(e) { console.error(e); showToast(e?.message||String(e),true); }
+    finally { btn.disabled=false; }
+  }
+
+  // LINKS
+  function openConfigLinks(safeId, safeRole, safeLinksJson) {
+    const profileId = decodeURIComponent(safeId);
+    const role      = decodeURIComponent(safeRole);
+    let links = {}; try { links = JSON.parse(decodeURIComponent(safeLinksJson)); } catch(e) {}
+    el("configProfileId").value   = profileId;
+    el("configTitle").textContent = profileId;
+    const isForn = (role||"").toLowerCase()==="fornecedor";
+    el("wrapDocs").style.display = isForn?"none":"";
+    el("wrapObra").style.display = isForn?"none":"";
+    el("linkDocumentos").value = links?.documentos||"";
+    el("linkArquivos").value   = links?.arquivos||"";
+    el("linkRenders").value    = links?.renders||"";
+    el("linkObra").value       = links?.obra||"";
+    openModal("modalConfigLinks");
+  }
+  async function salvarLinks() {
+    try {
+      await callFn("update-links", {
+        profile_id: el("configProfileId").value,
+        documentos: el("linkDocumentos").value.trim()||null,
+        arquivos:   el("linkArquivos").value.trim()||null,
+        renders:    el("linkRenders").value.trim()||null,
+        obra:       el("linkObra").value.trim()||null,
+      });
+      closeModal("modalConfigLinks");
+      showToast("Links salvos!");
+      await renderDashboard(); await renderCadastro();
+    } catch(e) { console.error(e); showToast(e?.message||String(e),true); }
+  }
+
+  // EXCLUIR
+  function pedirExclusao(safeId, safeName) {
+    _deleteId = decodeURIComponent(safeId);
+    el("confirmMsg").textContent = `Excluir "${decodeURIComponent(safeName)}"? Esta ação não pode ser desfeita.`;
+    el("confirmDelete").classList.add("show");
+  }
+  function closeConfirm() { el("confirmDelete").classList.remove("show"); _deleteId=null; }
+  async function confirmarExclusao() {
+    if (!_deleteId) return;
+    const btn = el("btnConfirmDelete"); btn.disabled=true;
+    try {
+      await callFn("update-profile", {action:"delete", profile_id:_deleteId});
+      closeConfirm();
+      showToast("Acesso excluído.");
+      await renderDashboard(); await renderCadastro();
+    } catch(e) { console.error(e); showToast(e?.message||String(e),true); }
+    finally { btn.disabled=false; }
+  }
+
+  // INIT
+  async function initApp() {
+    const {data:{session}} = await sb.auth.getSession();
+    if (!session) { showLogin(); return; }
+    try {
+      const profile = await fetchMyProfile();
+      const role = (profile?.role||"cliente").toLowerCase();
+      showPortal();
+      setUserUI({name:profile?.nome||session.user.email, role});
+      el("menuCadastro").style.display = role==="admin"?"flex":"none";
+      showSection("dashboard");
+    } catch(e) {
+      showPortal();
+      setUserUI({name:session.user.email, role:"cliente"});
+      el("menuCadastro").style.display = "none";
+      showSection("dashboard");
     }
+  }
 
-    async function criarAcesso() {
-      const btn = el("btnCriarAcesso");
-      btn.disabled = true;
-      try {
-        const role     = (el("novoTipo").value     || "").trim().toLowerCase();
-        const codigo   = (el("novoCode").value     || "").trim();
-        const nome     = (el("novoName").value     || "").trim();
-        const projeto  = (el("novoProject").value  || "").trim();
-        const email    = (el("novoEmail").value    || "").trim().toLowerCase();
-        const password = (el("novoPassword").value || "");
-        const phone    = role === "cliente" ? (el("novoPhone").value   || "").trim() || null : null;
-        const address  = role === "cliente" ? (el("novoAddress").value || "").trim() || null : null;
-        const birth    = role === "cliente" ? (el("novoBirth").value   || "").trim() || null : null;
-
-        if (!role || !codigo || !nome || !projeto || !email || !password) {
-          showToast("Preencha todos os campos.", true); return;
-        }
-        if (password.length < 6) {
-          showToast("Senha muito curta (mín. 6).", true); return;
-        }
-
-        await callFn("create-account", { email, password, role, codigo, nome, projeto, phone, address, birth });
-
-        closeModal("modalNovoAcesso");
-        showToast("Acesso criado! Agora configure os links.");
-        await renderDashboard();
-        await renderCadastro();
-      } catch (e) {
-        console.error(e);
-        showToast(e?.message || e?.error || JSON.stringify(e) || "Erro desconhecido", true);
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    /* ============================================================
-       LINKS (ADMIN)
-    ============================================================ */
-    function openConfigLinks(profileId, role, codigo, nome, projeto, linksJson) {
-      let links = {};
-      try { links = JSON.parse(linksJson || "{}"); } catch (e) {}
-
-      el("configProfileId").value   = profileId;
-      el("configTitle").textContent = [codigo, nome, projeto].filter(Boolean).join(" – ");
-
-      const isFornecedor = (role || "").toLowerCase() === "fornecedor";
-      el("wrapDocs").style.display = isFornecedor ? "none" : "";
-      el("wrapObra").style.display = isFornecedor ? "none" : "";
-
-      el("linkDocumentos").value = links?.documentos || "";
-      el("linkArquivos").value   = links?.arquivos   || "";
-      el("linkRenders").value    = links?.renders    || "";
-      el("linkObra").value       = links?.obra       || "";
-
-      openModal("modalConfigLinks");
-    }
-
-    async function salvarLinks() {
-      try {
-        const profile_id = el("configProfileId").value;
-        const documentos = (el("linkDocumentos").value || "").trim() || null;
-        const arquivos   = (el("linkArquivos").value   || "").trim() || null;
-        const renders    = (el("linkRenders").value    || "").trim() || null;
-        const obra       = (el("linkObra").value       || "").trim() || null;
-
-        await callFn("update-links", { profile_id, documentos, arquivos, renders, obra });
-
-        closeModal("modalConfigLinks");
-        showToast("Links salvos.");
-        await renderDashboard();
-        await renderCadastro();
-      } catch (e) {
-        console.error(e);
-        showToast(String(e?.message || e), true);
-      }
-    }
-
-    /* ============================================================
-       INIT
-    ============================================================ */
-    async function initApp() {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) { showLogin(); return; }
-
-      try {
-        const profile = await fetchMyProfile();
-        const role    = (profile?.role || "cliente").toLowerCase();
-
-        showPortal();
-        setUserUI({ name: profile?.nome || session.user.email, role });
-        el("menuCadastro").style.display = (role === "admin") ? "flex" : "none";
-        showSection("dashboard");
-      } catch (e) {
-        console.error(e);
-        showPortal();
-        setUserUI({ name: session.user.email, role: "cliente" });
-        el("menuCadastro").style.display = "none";
-        showSection("dashboard");
-      }
-    }
-
-    sb.auth.onAuthStateChange(() => { initApp(); });
-    window.addEventListener("load", () => { initApp(); });
-  </script>
+  sb.auth.onAuthStateChange(()=>{ initApp(); });
+  window.addEventListener("load", ()=>{ initApp(); });
+</script>
 </body>
 </html>
