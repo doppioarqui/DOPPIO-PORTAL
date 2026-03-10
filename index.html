@@ -184,7 +184,7 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Tipo de acesso</label>
-          <select class="form-input" id="novoTipo">
+          <select class="form-input" id="novoTipo" onchange="toggleClienteFields()">
             <option value="cliente" selected>Cliente</option>
             <option value="fornecedor">Fornecedor</option>
           </select>
@@ -208,6 +208,18 @@
         <div class="form-group">
           <label class="form-label">Senha</label>
           <input class="form-input" id="novoPassword" placeholder="Mínimo 6 caracteres" type="password"/>
+        </div>
+        <div class="form-group" id="wrapPhone">
+          <label class="form-label">Telefone</label>
+          <input class="form-input" id="novoPhone" placeholder="Ex: (86) 99999-9999" type="tel"/>
+        </div>
+        <div class="form-group" id="wrapAddress">
+          <label class="form-label">Endereço</label>
+          <input class="form-input" id="novoAddress" placeholder="Ex: Rua das Flores, 123 - Teresina/PI" type="text"/>
+        </div>
+        <div class="form-group" id="wrapBirth">
+          <label class="form-label">Data de Nascimento</label>
+          <input class="form-input" id="novoBirth" type="date"/>
         </div>
       </div>
       <div class="modal-actions">
@@ -592,6 +604,13 @@
       }
     }
 
+    function toggleClienteFields() {
+      const isCliente = (el("novoTipo").value || "").toLowerCase() === "cliente";
+      el("wrapPhone").style.display   = isCliente ? "" : "none";
+      el("wrapAddress").style.display = isCliente ? "" : "none";
+      el("wrapBirth").style.display   = isCliente ? "" : "none";
+    }
+
     function openNovoAcesso() {
       el("novoTipo").value     = "cliente";
       el("novoCode").value     = "";
@@ -599,6 +618,10 @@
       el("novoProject").value  = "";
       el("novoEmail").value    = "";
       el("novoPassword").value = "";
+      el("novoPhone").value    = "";
+      el("novoAddress").value  = "";
+      el("novoBirth").value    = "";
+      toggleClienteFields();
       openModal("modalNovoAcesso");
     }
 
@@ -612,6 +635,9 @@
         const projeto  = (el("novoProject").value  || "").trim();
         const email    = (el("novoEmail").value    || "").trim().toLowerCase();
         const password = (el("novoPassword").value || "");
+        const phone    = role === "cliente" ? (el("novoPhone").value   || "").trim() || null : null;
+        const address  = role === "cliente" ? (el("novoAddress").value || "").trim() || null : null;
+        const birth    = role === "cliente" ? (el("novoBirth").value   || "").trim() || null : null;
 
         if (!role || !codigo || !nome || !projeto || !email || !password) {
           showToast("Preencha todos os campos.", true); return;
@@ -620,7 +646,7 @@
           showToast("Senha muito curta (mín. 6).", true); return;
         }
 
-        await callFn("create-account", { email, password, role, codigo, nome, projeto });
+        await callFn("create-account", { email, password, role, codigo, nome, projeto, phone, address, birth });
 
         closeModal("modalNovoAcesso");
         showToast("Acesso criado! Agora configure os links.");
