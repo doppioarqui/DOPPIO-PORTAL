@@ -151,6 +151,24 @@
   </div>
 </div>
 
+<!-- RESET PASSWORD PAGE -->
+<div class="login-container" id="resetPage" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo">DOPPIO</div>
+    <div class="login-subtitle">Redefinir Senha</div>
+    <div class="error-message" id="resetError"></div>
+    <div class="form-group">
+      <label class="form-label">Nova Senha</label>
+      <input class="form-input" id="resetNewPassword" placeholder="Mínimo 6 caracteres" type="password"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmar Senha</label>
+      <input class="form-input" id="resetConfirmPassword" placeholder="Repita a senha" type="password"/>
+    </div>
+    <button class="btn-login" id="btnResetConfirm" onclick="confirmarNovaSenha()">Salvar Nova Senha</button>
+  </div>
+</div>
+
 <!-- PORTAL -->
 <div class="portal-container" id="portalPage">
   <aside class="sidebar">
@@ -738,8 +756,45 @@
     finally { btn.disabled=false; }
   }
 
+  // RESET PASSWORD
+  async function confirmarNovaSenha() {
+    const newPass     = el("resetNewPassword").value || "";
+    const confirmPass = el("resetConfirmPassword").value || "";
+    const errBox      = el("resetError");
+    const btn         = el("btnResetConfirm");
+
+    errBox.style.display = "none";
+    if (newPass.length < 6) { errBox.textContent="Senha mínimo 6 caracteres."; errBox.style.display="block"; return; }
+    if (newPass !== confirmPass) { errBox.textContent="As senhas não coincidem."; errBox.style.display="block"; return; }
+
+    btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: newPass });
+    btn.disabled = false;
+
+    if (error) { errBox.textContent = error.message || "Erro ao redefinir senha."; errBox.style.display="block"; return; }
+
+    // Sign out and redirect to login
+    await sb.auth.signOut();
+    el("resetPage").style.display  = "none";
+    el("loginPage").style.display  = "flex";
+    el("loginError").textContent   = "";
+    el("loginError").style.background = "#DCFCE7";
+    el("loginError").style.color      = "#166534";
+    el("loginError").textContent   = "Senha redefinida com sucesso! Faça login.";
+    el("loginError").style.display = "block";
+  }
+
   // INIT
   async function initApp() {
+    // Detecta token de recuperação de senha na URL
+    const hash = window.location.hash;
+    if (hash.includes("type=recovery")) {
+      el("loginPage").style.display  = "none";
+      el("portalPage").classList.remove("active");
+      el("resetPage").style.display  = "flex";
+      return;
+    }
+
     const {data:{session}} = await sb.auth.getSession();
     if (!session) { showLogin(); return; }
     try {
