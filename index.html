@@ -466,7 +466,7 @@
 
         if (isAdmin) {
           const listData     = await callFn("list-accesses", {});
-          const items        = listData?.items || [];
+          const items        = (listData?.items || []).filter(x => ["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
           const clientes     = items.filter(x => (x.role || "").toLowerCase() === "cliente");
           const fornecedores = items.filter(x => (x.role || "").toLowerCase() === "fornecedor");
 
@@ -547,7 +547,7 @@
         if ((profile?.role || "").toLowerCase() !== "admin") { showSection("dashboard"); return; }
 
         const listData = await callFn("list-accesses", {});
-        const items    = listData?.items || [];
+        const items    = (listData?.items || []).filter(x => ["cliente","fornecedor"].includes((x.role||"").toLowerCase()));
 
         container.innerHTML = `
           <div class="card">
@@ -628,7 +628,7 @@
         await renderCadastro();
       } catch (e) {
         console.error(e);
-        showToast(String(e?.message || e), true);
+        showToast(e?.message || e?.error || JSON.stringify(e) || "Erro desconhecido", true);
       } finally {
         btn.disabled = false;
       }
